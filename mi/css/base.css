@@ -1,4 +1,6 @@
 /* 公共样式 */
+
+/* 同时解决高度塌陷（after）和外边距重叠（before）的问题 */
 .clearfix::before,
 .clearfix::after{
     content: '';
