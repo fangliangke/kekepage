@@ -16,3 +16,17 @@ clear作用：清除浮动元素对当前元素所产生的影响（本质是为
 left 清除左侧浮动元素对当前元素的影响  
 right 清除右侧浮动元素对当前元素的影响  
 both 清除两侧中影响较大一侧元素的影响（注意，这里不是同时清除两侧的影响）  
+
+- :after 伪类
+选择器在被选元素的内容后面插入内容。
+使用 content 属性来指定要插入的内容。  
+````
+p:after
+{ 
+content:"台词：-";
+background-color:yellow;
+color:red;
+font-weight:bold;
+}
+````
+
