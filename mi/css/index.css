@@ -114,6 +114,7 @@
 
 .shop-cart{
     margin-left: 26px;
+    z-index: 32;
 }
 
 /* 设置购物车的样式 */
@@ -132,4 +133,29 @@
 /* 设置小车图标 */
 .shop-cart i{
     margin-right: 2px;
+}
+
+.shop-cart .carts-list{
+    width: 316px;
+    height: 0;
+    /* background-color: #fff; */
+    background-color: #fff;
+    position: absolute;
+    right: 155px;
+    transition: height 0.3s;
+    overflow: hidden;
+    box-shadow:  0 0 10px rgba(0,0,0,.3);
+    z-index: -1;
+}
+
+.shop-cart .carts-list p {
+    color: #000;
+    text-align: center;
+}
+
+
+.shop-cart:hover .carts-list,
+.shop-cart:hover::after{
+    display: block;
+    height: 100px;
 }
