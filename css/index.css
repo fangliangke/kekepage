@@ -64,18 +64,18 @@
 .header-search input:focus {
     width: 450px;
 }
-.header-search input:focus .header-search {
+/*.header-search input:focus .header-search {
     border: 1px solid #1E80FF;
-}
+}*/
 
 /*失去焦点*/
 .header-search input:blur {
     width: 300px;
 }
 /*失去焦点*/
-.header-search .header-search {
+/*.header-search .header-search {
     border: 1px solid #c2c8d1;
-}
+}*/
 
 .header-search input {
     float: left;
