@@ -1,0 +1,142 @@
+.header-and-nav{
+    position: fixed;
+    top: 0px;
+    width: 100%;
+    background-color: rgb(244,245,245);
+    z-index: 4;
+}
+
+/* header区域*/
+.body-header {
+    height: 68px;
+    min-width: 600px;
+    width: 100%;
+    background-color: rgb(255, 255, 255);
+}
+
+/* 图标 */
+.header-logo {
+    float: left;
+    margin: 22px 0 0 60px;
+    cursor: pointer;
+}
+
+.header-logo-img {
+    width: 106px;
+}
+
+/* 图标旁边列表 */
+.header-list li {
+    height: 43px;
+    margin: 24px 0 0 25px;
+    float: left;
+    font-size: .9rem;
+    cursor: pointer;
+}
+
+.header-list li:hover {
+    border-bottom: 2px solid rgb(30, 143, 255);
+    color: #696d70;
+}
+
+.moveFather {
+    float: right;
+    margin-right: 30px;
+    width: 535px;
+    height: 56px;
+    overflow: hidden;
+}
+
+.moveChild {
+    float: left;
+    width: 1000px;
+}
+
+/* 搜索框 */
+.header-search {
+    float: left;
+    margin: 17px 30px 0 0;
+    border: 1px solid #c2c8d1;
+    border-radius: 5px;
+}
+
+/*取焦点时*/
+.header-search input:focus {
+    width: 450px;
+}
+.header-search input:focus .header-search {
+    border: 1px solid #1E80FF;
+}
+
+/*失去焦点*/
+.header-search input:blur {
+    width: 300px;
+}
+/*失去焦点*/
+.header-search .header-search {
+    border: 1px solid #c2c8d1;
+}
+
+.header-search input {
+    float: left;
+    height: 26px;
+    width: 300px;
+    margin: 4px 0 4px 15px;
+    border: none;
+    outline: none;
+    transition: width 0.3s ease;
+}
+
+
+.header-search-btn {
+    float: left;
+    height: 30px;
+    width: 50px;
+    margin: 2px;
+    background-color: rgb(242, 243, 245);
+    border-radius: 3px;
+    border: none;
+    line-height: 30px;
+    cursor: pointer;
+    padding: 6px 0px;
+}
+
+/* header 下方导航栏 */
+nav {
+    height: 50px;
+    width: 100%;
+    margin-top: 1px;
+    background-color: rgb(255, 255, 255);
+}
+
+.nav-main {
+    margin-left: 260px;
+    width: 100%;
+    height: 50px;
+}
+
+.nav-main li {
+    float: left;
+    height: 50px;
+    margin: 0 13px;
+    font-size: .9rem;
+    line-height: 50px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.nav-main li a:hover {
+    color: #007fff;
+}
+
+
+/* 页面主体内容区整体布局 */
+main{
+    width: 1000px;
+    height: 3000px;
+    margin: 140px auto;
+}
+.main-box{
+    float: left;
+    width: 740px;
+}
