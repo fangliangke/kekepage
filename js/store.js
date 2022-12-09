@@ -11,7 +11,17 @@ const store = new Vuex.Store({
             like: 99,
             cover: 'cat.jpeg',
             url: 'mi/index.html'
-        }]
+        },
+            {
+                type: '有趣',
+                createTime: '2022年11月11日',
+                title: '圣诞树',
+                content: '简简单单的圣诞树',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'funny/christmasTree.html'
+            }]
     },
     getters: {
         getArticleList(state) {
