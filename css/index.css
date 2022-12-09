@@ -39,6 +39,11 @@
     color: #696d70;
 }
 
+.header-list li:first-child{
+    border-bottom: 2px solid rgb(30, 143, 255);
+    color: rgb(30, 143, 255);;
+}
+
 .moveFather {
     float: right;
     margin-right: 30px;
@@ -129,6 +134,10 @@ nav {
     color: #007fff;
 }
 
+.nav-main li a.active {
+    color: #007fff;
+}
+
 
 /* 页面主体内容区整体布局 */
 main{
@@ -137,6 +146,111 @@ main{
     margin: 140px auto;
 }
 .main-box{
-    float: left;
+    margin:0 auto;
     width: 740px;
 }
+.main-ul{
+    margin-top: 2px;
+    background-color: rgb(255,255,255);
+}
+
+.main-ul-li {
+    width: 700px;
+    height: 138px;
+    margin: 0 18px;
+    border-bottom: 2px solid rgb(244, 245, 245);
+    cursor: pointer;
+    display: flex;
+}
+
+.li-left {
+    flex: 1 1 auto;
+}
+
+.article-header {
+    height: 44px;
+    margin-left: -10px;
+    display: flex;
+}
+
+.article-header li {
+    padding: 0 10px;
+    margin: 12px 0;
+    font-size: 13px;
+}
+.article-header li:nth-child(1):hover {
+    color: rgb(30, 143, 255);
+}
+
+.article-header li+li {
+    border-left: 2px solid rgb(231, 231, 231);
+}
+
+.article-title {
+    display: block;
+    font-size: 17px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.article-content {
+    display: block;
+    /*width: 78%;*/
+    height: 25px;
+    margin-top: 10px;
+    border: 0px;
+    line-height: 25px;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.article-cover{
+    /*float: right;*/
+    height: 100px;
+    flex: 0 0 auto;
+    width: 120px;
+    margin-left: 24px;
+    margin-top: 12px;
+}
+
+.article-option {
+    display: flex;
+    /*垂直居中*/
+    align-items: center;
+}
+
+.option-item {
+    color: #4e5969;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    margin-right: 20px;
+}
+
+.option-item i{
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-size: 100%;
+}
+
+.option-item > span{
+    margin-left: 4px;
+}
+
+.view i{
+    background-image: url("../img/view.png");
+}
+
+.like i{
+    background-image: url("../img/like_black.png");
+}
+
+.like i:hover{
+    background-image: url("../img/like.png");
+}
+
+
