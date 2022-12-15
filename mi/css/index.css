@@ -39,6 +39,7 @@
 }
 
 .app{
+    /*方便给absolute做参考物*/
     position: relative;
 }
 /* 设置app下的小三角 */
@@ -62,9 +63,11 @@
     margin:auto;
 }
 
+/*第二种写法*/
 .app:hover .qrcode,
 .app:hover::after{
     display: block;
+    /*用height0隐藏 再赋值height让他显示，这种方式方便添加动画效果*/
     height: 148px;
 }
 
@@ -79,15 +82,17 @@
     left: -40px;
     width: 124px;
     /* height: 148px; */
+    /*高度为0 配合overflow hidden进行隐藏*/
     height: 0;
     overflow: hidden;
+
     /* margin-left: -62px; */
     line-height: 1;
     text-align: center;
     background-color: #fff;
     box-shadow: 0 0 10px rgba(0, 0, 0, .3);
 
-    /* transition: 用于为样式设置过渡效果 */
+    /* transition: 用于为样式设置过渡效果(高度的变化) */
     transition: height 0.3s;
 
     z-index: 9999;
@@ -137,15 +142,23 @@
 
 .shop-cart .carts-list{
     width: 316px;
+
     height: 0;
+    overflow: hidden;
     /* background-color: #fff; */
     background-color: #fff;
     position: absolute;
     right: 155px;
     transition: height 0.3s;
-    overflow: hidden;
+
     box-shadow:  0 0 10px rgba(0,0,0,.3);
     z-index: -1;
+}
+
+.shop-cart:hover .carts-list,
+.shop-cart:hover::after{
+    display: block;
+    height: 100px;
 }
 
 .shop-cart .carts-list p {
@@ -153,9 +166,52 @@
     text-align: center;
 }
 
-
-.shop-cart:hover .carts-list,
-.shop-cart:hover::after{
-    display: block;
+/*设置中间的header*/
+.header {
     height: 100px;
+    background-color: #bfa;
+}
+/*设置logo的H1*/
+.header .logo{
+    float: left;
+    margin-top: 22px;
+    width: 55px;
+    height: 55px;
+    /*为a设置参考物*/
+    position: relative;
+    /*溢出的隐藏*/
+    overflow: hidden;
+    /*首行缩进，用来隐藏logo中的文字，文字是为了方便浏览器搜索到该网站*/
+    text-indent: -99999px;
+}
+/*统一设置logo的超链接*/
+.header .logo a{
+    /*绝对定位*/
+    position: absolute;
+    background-color: #ff6700;
+    width: 55px;
+    height: 55px;
+    /*display: inline-block;*/
+    background-image: url(../img/logo-mi2.png);
+    background-position: center;
+
+    /*设置大小 否则图片太大*/
+    background-size: 55px;
+
+    transition: left 0.3s;
+    /*设置具体值 方便计算显示动画效果*/
+    left: 0;
+}
+/*设置home图片*/
+.header .logo .home {
+    background-image: url(../img/logo-mi2.png);
+    /*防止重叠 左移一下*/
+    left: -55px;
+}
+/*设置鼠标移入以后两个图片的位置变化*/
+.header .logo:hover .mi {
+    left: 55px;
+}
+.header .logo:hover .home {
+    left: 0;
 }
