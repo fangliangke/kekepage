@@ -39,8 +39,9 @@
                 <div class="moveChild">
                     <!-- 搜索框 -->
                     <form class="header-search">
-                        <input type="text" placeholder="探索有趣的内容"/>
-                        <button class="header-search-btn" style="color:red">
+                        <input type="text" placeholder="探索有趣的内容" v-model="searchText" @keyup.enter="setSearchText(searchText)"/>
+                        <input type="text" style="display: none"/>
+                        <button class="header-search-btn" style="color:red" @click="setSearchText(searchText)" type="button">
 
                             <svg width="18" height="18" viewBox="0 0 18 18" fill="none"
                                  xmlns="http://www.w3.org/2000/svg">
@@ -97,6 +98,9 @@
     const app = new Vue({
         el: "#app",
         store: store,
+        data:{
+          searchText:'',
+        },
         computed: {
             ...Vuex.mapState({
                 typeList: state => state.typeList,
@@ -115,6 +119,7 @@
         methods: {
             ...Vuex.mapActions({
                 setTypeIndex: "setTypeIndex",
+                setSearchText:"setSearchText"
             }),
             handleScroll() {
                 if (window.scrollY > 500) {

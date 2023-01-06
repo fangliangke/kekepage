@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>字符串切割</title>
     <style>
+        * {
+        font－famil:宋体;
+        }
         .button-group {
             border: 0px deepskyblue solid;
             width: 100px;
@@ -23,58 +26,55 @@
             width: 100px;
             height: 50px
         }
+        .contain {
+            width: 1000px;
+            margin: 0 auto;
+            display: flex;
+        }
+
+        .contain > div {
+            margin: 0 20px;
+        }
 
     </style>
 </head>
 <body>
-
-
-<div class="title">
-    <h2 style="color: #00bfff; display: inline;">输入字符串：</h2>
-    <div class="button-group">
-        <button style="color:#00bfff;" type="submit"
-                onclick="execute(document.getElementById('sqlLog'))">
-            解析SQL
-        </button>
-        <button style="color:#00bfff;" type="button"
-                onclick="clearLog(document.getElementById('sqlLog'))">
-            清空输入
-        </button>
+<div class="contain">
+    <div class="left">
+        <div class="title">
+            <h2 style="color: #00bfff; display: inline;">输入字符串：</h2>
+            <div class="button-group">
+                <button style="color:#00bfff;" type="submit"
+                        onclick="execute(document.getElementById('sqlLog'))">
+                    解析SQL
+                </button>
+                <button style="color:#00bfff;" type="button"
+                        onclick="clearLog(document.getElementById('sqlLog'))">
+                    清空输入
+                </button>
+            </div>
+        </div>
+        <textarea id="sqlLog" rows="24" style="font-size:20px;width: 500px;border-color:#00bfff; " autofocus></textarea>
+    </div>
+    <div class="right">
+        <div class="title">
+            <h2 style="color: #32cd32; display: inline;">解析结果：</h2>
+            <div class="button-group">
+                <button style="color:#32cd32;" type="button" onclick="copySQL()">复制SQL</button>
+                <button style="color:#32cd32;" type="button"
+                        onclick="clearOut(document.getElementById('result'))">
+                    清空输出
+                </button>
+            </div>
+        </div>
+        <textarea id="result" rows="24" style="font-size:20px;width: 500px;border-color:#32cd32;" readonly></textarea>
     </div>
 </div>
-<textarea id="sqlLog" rows="6" style="font-size:20px;width: 100%;border-color:#00bfff; " autofocus></textarea>
-<div id="msg"
-     style="color:cornflowerblue;border:0px black solid;width:800px;height:20px;text-align:right;font-style: initial;font-size: large">
-</div>
-<div class="title">
-    <h2 style="color: #32cd32; display: inline;">解析结果：</h2>
-    <div class="button-group">
-        <button style="color:#32cd32;" type="button" onclick="copySQL()">复制SQL</button>
-        <button style="color:#32cd32;" type="button"
-                onclick="clearOut(document.getElementById('result'))">
-            清空输出
-        </button>
-    </div>
-</div>
-<textarea id="result" rows="4" style="font-size:20px;width: 100%;border-color:#32cd32;" readonly></textarea>
-
-
-<div class="title">
-    <h2 style="color: #000; display: inline;">历史记录：</h2>
-    <div class="button-group">
-        <button style="color:#000;" type="button"
-                onclick="clearOutAll()">
-            清空所有
-        </button>
-    </div>
-</div>
-<textarea id="all" rows="13" style="font-size:20px;width: 100%;border-color:#000;" readonly></textarea>
 
 </body>
 <script type="text/javascript">
     function execute(obj) {
         let str = obj.value;
-        debugger;
         let arr = str.split("\n");
 
         let result = "(\n";
@@ -93,84 +93,11 @@
     }
 
 
-    var listJson = localStorage.getItem("flk_kk_all_sql");
-    if (listJson != null) {
-        let list = JSON.parse(listJson);
-        for (let i = 0; i < list.length; i++) {
-            let item = list[i];
-            document.getElementById("all").innerHTML += item.time + ":\n" + item.val + "\n";
-        }
-    }
-
-    function f(obj) {
-        getSql(obj.value);
-    }
-
-    function getSql(textVa) {
-        // 获取带问号的SQL语句
-        var statementStartIndex = textVa.indexOf('Preparing: ');
-        if (statementStartIndex < 0) return;
-        var statementEndIndex = textVa.length - 1;
-        for (var i = statementStartIndex; i < textVa.length; i++) {
-            if (textVa[i] == "\n") {
-                statementEndIndex = i;
-                break;
-            }
-        }
-        var statementStr = textVa.substring(statementStartIndex + "Preparing: ".length, statementEndIndex);
-        //获取参数
-        var parametersStartIndex = textVa.indexOf('Parameters: ');
-        var parametersEndIndex = textVa.length;
-        for (var i = parametersStartIndex; i < textVa.length; i++) {
-            if (textVa[i] == "\n") {
-                parametersEndIndex = i;
-                break;
-            } else {
-                // console.log(textVa[i]);
-            }
-        }
-        var parametersStr = textVa.substring(parametersStartIndex + "Parameters: ".length, parametersEndIndex);
-        parametersStr = parametersStr.split(",");
-        // console.log(parametersStr);
-        for (var i = 0; i < parametersStr.length; i++) {
-            // 如果数据中带括号将使用其他逻辑
-            tempStr = parametersStr[i].substring(0, parametersStr[i].indexOf("("));
-            // 获取括号中内容
-            typeStr = parametersStr[i].substring(parametersStr[i].indexOf("(") + 1, parametersStr[i].indexOf(")"));
-            // 如果为字符类型或时间 加''
-            if (typeStr == "String" || typeStr == "Timestamp") {
-                statementStr = statementStr.replace("?", "'" + tempStr.trim() + "'");
-            } else {
-                // 数值类型
-                statementStr = statementStr.replace("?", tempStr.trim());
-            }
-        }
-        // console.log(statementStr);
-        document.getElementById("result").innerHTML = statementStr;
-        let curtime = getStrDate();
-        document.getElementById("all").innerHTML = curtime + ":\n" + statementStr + "\n" +document.getElementById("all").innerHTML;
-        var listJson = localStorage.getItem("flk_kk_all_sql");//获取存储的元素
-        let list =[];
-        if (listJson != null) {
-            list = JSON.parse(listJson);
-        }
-        let list2 = [{val:statementStr,time:curtime}, ...list];
-        localStorage.setItem("flk_kk_all_sql",JSON.stringify(list2));
-        var newText = textVa.substring(parametersStartIndex + parametersStr.length);
-        if (newText <= 0) return;
-        getSql(newText);
-    }
-
     function copySQL() {
         var SQL = document.getElementById("result");
         SQL.select(); // 选择对象
         document.execCommand("Copy"); // 执行浏览器复制命令
-        var msg = document.getElementById("msg");
-        msg.innerHTML = "已复制到剪切板";
-        setTimeout(function () {
-            msg.innerHTML = "";
-        }, 3000);
-
+        alert("已复制到剪切板")
     }
 
     function clearLog(obj) {
@@ -180,23 +107,6 @@
 
     function clearOut(obj) {
         obj.innerHTML = "";
-    }
-    function clearOutAll()  {
-        let obj = document.getElementById('all');
-        obj.innerHTML = "";
-        localStorage.setItem("flk_kk_all_sql",JSON.stringify([]));
-    }
-
-    function getStrDate() {
-        let timeObj = new Date();
-        var str = "";
-        var year = timeObj.getFullYear();
-        var month = timeObj.getMonth();
-        var date = timeObj.getDate();
-        var time = timeObj.toTimeString().split(" ")[0];
-        var rex = new RegExp(/:/g);
-        str = year + "-" + month + "-" + date + " " + time.replace(rex, ":");
-        return str;
     }
 
 </script>
