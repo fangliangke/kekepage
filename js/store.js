@@ -48,7 +48,6 @@ const store = new Vuex.Store({
     },
     getters: {
         getArticleList(state) {
-            debugger;
             if (state.typeIndex === 0) {
                 return state.articleList.filter(obj => {
                     if (state.searchText.length >0) {
