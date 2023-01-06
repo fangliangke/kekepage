@@ -58,7 +58,9 @@ const store = new Vuex.Store({
                 });
             } else {
                 return state.articleList
-                    .filter((obj) => {state.typeList[state.typeIndex] === obj.type})
+                    .filter((obj) => {
+                        return state.typeList[state.typeIndex] === obj.type
+                    })
                     .filter(obj => {
                         if (state.searchText.length >0) {
                             return obj.title.includes(state.searchText)||obj.content.includes(state.searchText)
