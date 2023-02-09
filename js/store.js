@@ -3,7 +3,7 @@ const store = new Vuex.Store({
         typeList: ['综合', '有趣', '仿照', '游戏', '工具'],
         typeIndex: 0,
         //关键字搜索
-        searchText:'',
+        searchText: '',
         articleList: [{
             type: '仿照',
             createTime: '2022年11月11日',
@@ -43,16 +43,26 @@ const store = new Vuex.Store({
                 like: 99,
                 cover: 'cat.jpeg',
                 url: 'tool/string-tool.html'
+            },
+            {
+                type: '游戏',
+                createTime: '2023年2月09日',
+                title: '五子棋',
+                content: '来一局简简单单的五子棋',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'funny/vue_gobang.html'
             }
-            ]
+        ]
     },
     getters: {
         getArticleList(state) {
             if (state.typeIndex === 0) {
                 return state.articleList.filter(obj => {
-                    if (state.searchText.length >0) {
-                        return obj.title.includes(state.searchText)||obj.content.includes(state.searchText)
-                    }else{
+                    if (state.searchText.length > 0) {
+                        return obj.title.includes(state.searchText) || obj.content.includes(state.searchText)
+                    } else {
                         return true;
                     }
                 });
@@ -62,9 +72,9 @@ const store = new Vuex.Store({
                         return state.typeList[state.typeIndex] === obj.type
                     })
                     .filter(obj => {
-                        if (state.searchText.length >0) {
-                            return obj.title.includes(state.searchText)||obj.content.includes(state.searchText)
-                        }else{
+                        if (state.searchText.length > 0) {
+                            return obj.title.includes(state.searchText) || obj.content.includes(state.searchText)
+                        } else {
                             return true
                         }
                     });
@@ -85,7 +95,7 @@ const store = new Vuex.Store({
                            commit
                        }, value) => commit('setTypeIndex', value),
         setSearchText: ({
-                           commit
-                       }, value) => commit('setSearchText', value),
+                            commit
+                        }, value) => commit('setSearchText', value),
     }
 })
