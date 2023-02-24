@@ -65,6 +65,7 @@
                         onclick="clearOut(document.getElementById('result'))">
                     清空输出
                 </button>
+                <span id="len"></span>
             </div>
         </div>
         <textarea id="result" rows="24" style="font-size:20px;width: 500px;border-color:#32cd32;" readonly></textarea>
@@ -90,6 +91,7 @@
         }
         result +="\n)\n";
         document.getElementById("result").innerHTML = result;
+        document.getElementById("len").innerText = cnt;
     }
 
 
