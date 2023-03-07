@@ -1,0 +1,1992 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        html, body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            min-width: 1000px;
+            overflow: hidden;
+        }
+
+        body > div:first-child {
+            font-size: 1.2rem;
+        }
+
+        #main {
+            display: flex;
+            padding-top: 60px;
+        }
+
+        #panel {
+            width: 360px;
+            height: 650px;
+            border-right: solid 1px;
+            margin-right: 50px;
+        }
+
+        #app {
+            width: 520px;
+            height: 520px;
+            border-bottom: solid 1px #0002;
+            border-right: solid 1px #0002;
+            background-image: linear-gradient(90deg, rgba(0, 0, 0, 0.15) 2.5%, transparent 2.5%), linear-gradient( rgba(0, 0, 0, 0.15) 2.5%, transparent 2.5%);
+            background-size: 40px 40px;
+            background-repeat: repeat;
+            display: grid;
+            grid-template-columns: repeat(13, 40px);
+            grid-template-rows: repeat(13, 40px);
+        }
+
+        #app > div {
+            text-align: center;
+            font-size: 1.8rem;
+            line-height: 48px;;
+        }
+
+        .buttons {
+            width: 180px;
+            height: 180px;
+            display: grid;
+            margin: auto;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(3, 60px);
+            padding-bottom: 30px;
+        }
+
+        .pass, .comparator, .trash {
+            border: dashed 1px #0005;
+            padding: 5px;
+            box-sizing: border-box;
+            cursor: pointer;
+        }
+
+        .running .pass,
+        .running .comparator,
+        .running .trash {
+            cursor: not-allowed;
+        }
+
+        .pass {
+            margin: 20px 10px;
+            line-height: 10px;
+            font-size: 0.5rem;
+        }
+        .pass::before {
+            content: '>>';
+        }
+        .pass::after {
+            content: '>>';
+        }
+
+        .comparator {
+            margin: 10px 20px;
+            border-bottom-right-radius: 50%;
+            border-bottom-left-radius: 50%;
+        }
+        .comparator::before {
+            content: '+';
+            margin-left: -10px;
+        }
+        .comparator::after {
+            content: '+';
+            margin-left: 10px;
+        }
+
+        .comparator.red::before {
+            color: red;
+        }
+        .comparator.green::before {
+            color: green;
+        }
+
+        .comparator.blue::after {
+            color: blue;
+        }
+        .comparator.yellow::after {
+            color: orange;
+        }
+
+        .red {
+            color: red;
+        }
+
+        .blue {
+            color: blue;
+        }
+
+        .green {
+            color: green;
+        }
+
+        .yellow {
+            color: orange;
+        }
+
+        .trash {
+            margin: 20px;
+        }
+
+        .trash::before {
+            line-height: 10px;
+            font-size: 0.5rem;
+            content: 'x'
+        }
+
+        .hide {
+            visibility: hidden;
+        }
+
+        #io, #result {
+            padding-top: 20px;
+            font-size: 1.3rem;
+        }
+
+        #io i {
+            font-style: normal;
+        }
+
+        .info, .task, .run {
+            width: 200px;
+            box-sizing: border-box;
+            font-size: .8rem;
+            padding: 20px;
+            margin: auto;
+        }
+
+        .info {
+            border-top: dashed 1px;
+            border-bottom: dashed 1px;
+        }
+
+        .task {
+            min-height: 130px;
+            border-bottom: dashed 1px;
+        }
+
+        #mousePick {
+            position: absolute;
+            display: inline-block;
+            width: 60px;
+            height: 60px;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .normal > div {
+            position: absolute;
+            line-height: 30px;
+            pointer-events: none;
+        }
+
+
+        #mousePick > div.trash {
+            height: 20px;
+            width: 20px;
+        }
+
+        .normal .pass {
+            margin: 0;
+        }
+
+        .normal .comparator {
+            margin: 0 10px;
+            width: 20px;
+            font-size: 1rem;
+        }
+
+        .flag::after {
+            content: "🚩";
+        }
+
+        .start {
+            background-color: mistyrose;
+            opacity: 0.4;
+        }
+
+        *[data-turn="1"] {
+            transform: rotate(.25turn);
+        }
+        *[data-turn="2"] {
+            transform: rotate(.5turn);
+        }
+        *[data-turn="3"] {
+            transform: rotate(.75turn);
+        }
+
+        *[data-flip="1"] {
+            transform: scale(-1, 1);
+        }
+        *[data-turn="1"][data-flip="1"] {
+            transform: rotate(.25turn) scale(-1, 1);
+        }
+        *[data-turn="2"][data-flip="1"] {
+            transform: rotate(.5turn) scale(-1, 1);
+        }
+        *[data-turn="3"][data-flip="1"] {
+            transform: rotate(.75turn) scale(-1, 1);
+        }
+
+        .run {
+            padding-top: 30px;
+        }
+
+        .btn {
+            display: block;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            margin-bottom: 20px;
+            padding: 0;
+        }
+
+        #runBtn {
+            width: 0px;
+            height: 0px;
+            border: solid 10px transparent;
+            border-left-width: 12px;
+            border-left-color: gray;
+        }
+
+        #pauseBtn {
+            width: 0px;
+            height: 0px;
+            border-radius: 50%;
+            border: solid 8px transparent;
+            border-color: gray;
+        }
+
+        #stopBtn {
+            width: 0px;
+            height: 0px;
+            border: solid 8px transparent;
+            border-color: gray;
+        }
+
+        #runBtn::after {
+            content: "运行";
+            width: 30px;
+            display: inline-block;
+            transform: translate(10px,-10px);
+        }
+
+        #pauseBtn::after {
+            content: "暂停";
+            width: 30px;
+            display: inline-block;
+            transform: translate(15px,-10px);
+        }
+
+        #stopBtn::after {
+            content: "停止";
+            width: 30px;
+            display: inline-block;
+            transform: translate(15px,-10px);
+        }
+
+        #robot {
+            position: absolute;
+            transition: all linear .2s;
+        }
+
+        #robot::after {
+            font-size: 1.8rem;
+            content: '🤖';
+            margin: 5px;
+        }
+
+        .btn.tap {
+            transform: translate(5px, 5px);
+        }
+
+        #io > i {
+            width: 1.4rem;
+            display: inline-block;
+            transition: all .2s;
+        }
+
+        #result span:first-of-type {
+            margin-left: 10px;
+        }
+
+        #result span {
+            color: red;
+        }
+
+        #result span.accept {
+            color: green;
+        }
+
+        #app .empty {
+            background:rgba(0, 0, 0, 0.15);
+        }
+
+        #app .empty::before,
+        #app .empty::after {
+            content: ' ';
+            display: inline-block;
+            position: relative;
+            width: 3px;
+            height: 30px;
+            background: #ccc;
+        }
+        #app .empty::before {
+            left: 1px;
+            transform: rotate(30deg);
+        }
+
+        #app .empty::after {
+            left: -1px;
+            transform: rotate(-30deg);
+        }
+    </style>
+</head>
+<body>
+<div>🤖🔴🟡🔵🟢🚩 <span>第 <select id="levelPicker"><option>1</option></select> 关</span></div>
+<div id="main">
+    <div id="panel">
+        <div class="buttons">
+            <div class="pass green" title="绿色通道：🤖通过时将🟢添加到序列尾部" data-turn=0 data-flip=0></div>
+            <div class="pass yellow" title="黄色通道：🤖通过时将🟡添加到序列尾部" data-turn=0 data-flip=0></div>
+            <div class="comparator green yellow" title="黄绿比较器：🤖通过时读取序列头部元素根据颜色判断路径" data-turn=0 data-flip=0></div>
+            <div class="pass red" title="红色通道：🤖通过时将🔴添加到序列尾部" data-turn=0 data-flip=0></div>
+            <div class="pass blue" title="蓝色通道：🤖通过时将🔵添加到序列尾部" data-turn=0 data-flip=0></div>
+            <div class="comparator red blue" title="红蓝比较器：🤖通过时读取序列头部元素根据颜色判断路径" data-turn=0 data-flip=0></div>
+            <div class="pass" title="通道" data-turn=0 data-flip=0></div>
+            <div class="trash" title="清除"></div>
+        </div>
+        <div class="info">
+            说明：鼠标选择上方元件添加到右侧面板中，键盘上下左右旋转，空格翻转。
+        </div>
+        <div class="task" id="taskInfo"></div>
+        <div class="run">
+            <button class="btn" id="runBtn"></button>
+            <button class="btn" id="stopBtn"></button>
+        </div>
+    </div>
+    <div>
+        <div id="app"></div>
+        <div id="io">序列 ← <i>❤️</i><i>💙</i></div>
+        <div id="result">结果 → </div>
+    </div>
+</div>
+<div id="mousePick">
+</div>
+</body>
+<script>
+    function enablePicker() {
+        const buttons = panel.querySelector('.buttons');
+        buttons.addEventListener('mousedown', ({target}) => {
+            if(main.className !== 'running' && target !== buttons && target.className) {
+                // console.log(target);
+                const node = target.cloneNode(true);
+                mousePick.innerHTML = '';
+                mousePick.appendChild(node);
+            }
+        });
+        window.addEventListener('mousemove', ({x, y}) => {
+            mousePick.style.left = `${x - 25}px`;
+            mousePick.style.top = `${y - 25}px`;
+        });
+        window.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            return false;
+        });
+        window.addEventListener('mouseup', ({target}) => {
+            if(target.parentNode !== buttons && target.className !== 'normal') {
+                mousePick.innerHTML = '';
+            }
+        });
+        window.addEventListener('keydown', ({key}) => {
+            const el = mousePick.children[0];
+            if(!el || el.className === 'trash') return;
+            // console.log(key);
+            if(key === 'ArrowRight') {
+                el.dataset.turn = 0;
+            } else if(key === 'ArrowDown') {
+                el.dataset.turn = 1;
+            } else if(key === 'ArrowLeft') {
+                el.dataset.turn = 2;
+            } else if(key === 'ArrowUp') {
+                el.dataset.turn = 3;
+            } else if(key === ' ') {
+                let n = Number(el.dataset.flip) || 0;
+                el.dataset.flip = ++n % 2;
+            }
+            if(key.startsWith('Arrow') && el.classList.contains('comparator')) {
+                el.dataset.turn = (Number(el.dataset.turn) + 3) % 4;
+            }
+        });
+    }
+
+    function init(board = []) {
+        app.innerHTML = '';
+        for(let i = 0; i < 169; i++) {
+            const cell = document.createElement('div');
+            const x = Math.floor(i / 13);
+            const y = i % 13;
+            if(board[i] === 2) {
+                // 终点
+                cell.className = 'flag';
+            } else if(board[i] === 1) {
+                // 起点
+                cell.className = 'start';
+            } else if(board[i] === -1) {
+                cell.className = 'empty';
+            } else {
+                cell.className = 'normal';
+            }
+            cell.dataset.x = x;
+            cell.dataset.y = y;
+            app.appendChild(cell);
+        }
+        if(!app._eventHandler) {
+            app._eventHandler = true;
+            app.addEventListener('click', ({target}) => {
+                if(target !== app && target.className === 'normal') {
+                    const el = mousePick.children[0];
+                    if(el) {
+                        if(el.className === 'trash') {
+                            target.innerHTML = '';
+                            saveLevel();
+                            return;
+                        }
+                        const item = el.cloneNode(true);
+                        const children = target.children;
+                        if(children.length === 2) { // 交叉十字
+                            target.innerHTML = '';
+                        } else if(children.length === 1) {
+                            // 已有元素
+                            if(!item.classList.contains('pass')
+                                || !children[0].classList.contains('pass')
+                                || !((Number(children[0].dataset.turn) + Number(item.dataset.turn)) % 2)) {
+                                target.innerHTML = '';
+                            }
+                        }
+                        target.appendChild(item);
+                    }
+                }
+                saveLevel();
+            });
+        }
+    }
+
+    function setRobot() {
+        const start = app.querySelector('.start');
+        const row = Number(start.dataset.x);
+        const col = Number(start.dataset.y);
+        let {x, y} = app.getBoundingClientRect();
+        x = x + col * 40;
+        y = y + row * 40;
+        const el = document.getElementById('robot') || document.createElement('div');
+        el.id = 'robot';
+        el.style.left = `${x}px`;
+        el.style.top = `${y}px`;
+        el.dataset.x = x;
+        el.dataset.y = y;
+        el.dataset.row = row;
+        el.dataset.col = col;
+        el.dataset.fromDirection = '';
+        document.body.appendChild(el);
+    }
+
+    function moveRobot(direction) {
+        let x = Number(robot.dataset.x);
+        let y = Number(robot.dataset.y);
+        let row = Number(robot.dataset.row);
+        let col = Number(robot.dataset.col);
+        let fromDirection = '';
+        if(direction === 'left') {
+            x -= 40;
+            col--;
+            fromDirection = 'right';
+        } else if(direction === 'right') {
+            x += 40;
+            col++;
+            fromDirection = 'left';
+        } else if(direction === 'up') {
+            y -= 40;
+            row--;
+            fromDirection = 'down';
+        } else if(direction === 'down') {
+            y += 40;
+            row++;
+            fromDirection = 'up';
+        }
+        robot.style.left = `${x}px`;
+        robot.style.top = `${y}px`;
+        robot.dataset.x = x;
+        robot.dataset.y = y;
+        robot.dataset.row = row;
+        robot.dataset.col = col;
+        robot.dataset.fromDirection = fromDirection;
+        // console.log(row, col, robot);
+
+        return new Promise(resolve => {
+            robot.addEventListener('transitionend', () => {
+                // console.log(row, col, robot.dataset.row, robot.dataset.col);
+                resolve(robot);
+            }, {once: true});
+            // 防止浏览器transitionend事件有时候不被触发
+            setTimeout(() => resolve(robot), 220);
+        });
+    }
+
+    function setDataList(list = []) {
+        io.innerHTML = "序列 ← ";
+        for(let i = 0; i < list.length; i++) {
+            const el = document.createElement('i');
+            el.innerHTML = list[i];
+            io.appendChild(el);
+        }
+    }
+
+    function getTopData() {
+        const item = io.querySelector('i');
+        if(item) return item.innerHTML;
+        else return null;
+    }
+
+    function popData() {
+        const item = io.querySelector('i');
+        item.style.width = 0;
+        return new Promise(resolve => {
+            item.addEventListener('transitionend', () => {
+                item.remove();
+                resolve(item);
+            }, {once: true});
+            // 防止浏览器transitionend事件有时候不被触发
+            setTimeout(() => {
+                item.remove();
+                resolve(item);
+            }, 220);
+        });
+    }
+
+    function appendData(data = '🔴') {
+        const el = document.createElement('i');
+        el.innerHTML = data;
+        io.appendChild(el);
+    }
+
+    function getIOData() {
+        const list = io.querySelectorAll('i');
+        let ret = '';
+        for(let i = 0; i < list.length; i++) {
+            ret += list[i].innerHTML;
+        }
+        return ret;
+    }
+
+    function getRobotCell() {
+        let x = Number(robot.dataset.row);
+        let y = Number(robot.dataset.col);
+        const cell = document.querySelector(`#app > div[data-x="${x}"][data-y="${y}"]`);
+        return cell;
+    }
+
+    function checkCell(cell, fromDirection) {
+        const ret = {
+            direction: null,
+            effect: null,
+            type: null,
+            data: false,
+        };
+
+        const children = cell.children;
+        if(children.length) {
+            for(let i = 0; i < children.length; i++) {
+                const el = children[i];
+                const flip = el.dataset.flip;
+                const turn = el.dataset.turn;
+                if(el.classList.contains('pass')) {
+                    ret.type = 'pass';
+                    // 通道
+                    if(children.length > 1) {
+                        // 交叉通道
+                        if(fromDirection === 'up' || fromDirection === 'down') {
+                            if(turn === '0' || turn === '2') continue;
+                        }
+                        if(fromDirection === 'left' || fromDirection === 'right') {
+                            if(turn === '1' || turn === '3') continue;
+                        }
+                    }
+                    if(turn === '0') ret.direction = 'right';
+                    if(turn === '1') ret.direction = 'down';
+                    if(turn === '2') ret.direction = 'left';
+                    if(turn === '3') ret.direction = 'up';
+                    if(el.classList.contains('red')) ret.effect = '🔴';
+                    if(el.classList.contains('green')) ret.effect = '🟢';
+                    if(el.classList.contains('yellow')) ret.effect = '🟡';
+                    if(el.classList.contains('blue')) ret.effect = '🔵';
+                } else if(el.classList.contains('comparator')) {
+                    // 比较器
+                    ret.type = 'comparator';
+                    const data = getTopData();
+                    if(data === '🔴' && el.classList.contains('red')) {
+                        if(turn === '0') ret.direction = 'left';
+                        if(turn === '1') ret.direction = 'up';
+                        if(turn === '2') ret.direction = 'right';
+                        if(turn === '3') ret.direction = 'down';
+                        ret.data = true;
+                    } else if(data === '🟢' && el.classList.contains('green')) {
+                        if(turn === '0') ret.direction = 'left';
+                        if(turn === '1') ret.direction = 'up';
+                        if(turn === '2') ret.direction = 'right';
+                        if(turn === '3') ret.direction = 'down';
+                        ret.data = true;
+                    } else if(data === '🔵' && el.classList.contains('blue')) {
+                        if(turn === '0') ret.direction = 'right';
+                        if(turn === '1') ret.direction = 'down';
+                        if(turn === '2') ret.direction = 'left';
+                        if(turn === '3') ret.direction = 'up';
+                        ret.data = true;
+                    } else if(data === '🟡' && el.classList.contains('yellow')) {
+                        if(turn === '0') ret.direction = 'right';
+                        if(turn === '1') ret.direction = 'down';
+                        if(turn === '2') ret.direction = 'left';
+                        if(turn === '3') ret.direction = 'up';
+                        ret.data = true;
+                    } else {
+                        if(turn === '0') ret.direction = 'down';
+                        if(turn === '1') ret.direction = 'left';
+                        if(turn === '2') ret.direction = 'up';
+                        if(turn === '3') ret.direction = 'right';
+                    }
+                }
+                if(flip === '1') {
+                    // 翻转交换
+                    if(turn === '0' || turn === '2') {
+                        if(ret.direction === 'left') ret.direction = 'right';
+                        else if(ret.direction === 'right') ret.direction = 'left';
+                    } else {
+                        if(ret.direction === 'up') ret.direction = 'down';
+                        else if(ret.direction === 'down') ret.direction = 'up';
+                    }
+                }
+            }
+        }
+        // console.log(ret);
+        return ret;
+    }
+
+    function checkState() {
+        const cell = getRobotCell();
+        const fromDirection = robot.dataset.fromDirection;
+        let state = {
+            direction: null,
+            effect: null,
+            accepted: false,
+            fromDirection,
+        };
+        if(cell.className === 'flag') {
+            state.accepted = true;
+        } else if(cell.className !== 'start') {
+            state = {
+                ...state,
+                ...checkCell(cell, fromDirection),
+            };
+        }
+        return state;
+    }
+
+    function initResult() {
+        result.innerHTML = '结果 →';
+    }
+
+    function appendResult(success = false) {
+        const r = success ? 'A' : 'E';
+        const el = document.createElement('span');
+        el.innerHTML = r;
+        if(success) el.className = 'accept';
+        result.appendChild(el);
+    }
+
+    function sleep(ms = 10) {
+        return new Promise(resolve => {
+            setTimeout(resolve, ms);
+        });
+    }
+
+    runBtn.addEventListener('mousedown', async () => {
+        mousePick.innerHTML = '';
+        runBtn.className = 'btn tap';
+        runBtn.disabled = true;
+        main.className = 'running';
+        await run();
+    });
+    stopBtn.addEventListener('mousedown', () => {
+        mousePick.innerHTML = '';
+        stopBtn.className = 'btn tap';
+        main.className = '';
+        // setRobot();
+    });
+    window.addEventListener('mouseup', () => {
+        if(stopBtn.className === 'btn tap') {
+            stopBtn.className = 'btn';
+            // runBtn.disabled = false;
+            // runBtn.className = 'btn';
+        }
+    });
+
+    const levels = [
+        {
+            task: '控制🤖移动到🚩处。',
+            hint: '👉🏻 放置通道元件让机器人朝箭头方向移动。',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔴', // 序列
+                    accept: true,
+                }, {
+                    data: '🔵', // 序列
+                    accept: true,
+                }
+            ],
+            units: [
+                6, 7
+            ],
+        },
+        {
+            task: '只接受以🔵开头的队列。',
+            hint: '👉🏻 获得新元件【比较器】。【比较器】根据序列开头元素的颜色决定机器人移动方向，如果开头元素颜色不符合，则机器人沿弧形方向移动。',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '接受三个及以上🔵数量的队列。',
+            hint: '👉🏻 【比较器】用来做逻辑分支是非常合适的。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '队列里不能出现🔴。',
+            hint: '👉🏻 用【比较器】检查🔴即退出。',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '队列里不能出现不同颜色的球。',
+            hint: '👉🏻 用【比较器】检查不同颜色即退出。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '队列必须以🔵🔵结尾。',
+            hint: '👉🏻 技巧是用【比较器】构造出循环结构。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '队列开头和结尾的球颜色必须相同。',
+            hint: '👉🏻 这关有点挑战，仔细思考一下。顺便说一下通道可以交叉，🤖会优先走直线。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，将序列的第一个球移到末尾，其他不变。',
+            hint: '👉🏻 这关新增颜色通道元件，机器人通过通道会在序列末尾添加通道颜色的小球。',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔵🔴🔵',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔴🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🔵🔴🔵🔴🔴',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，将队列的🔴替换成🟡，🔵替换成🟢',
+            hint: '👉🏻 利用颜色通道和【比较器】构成循环体。',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🟢🟢🟡',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🟢🟡🟢🟢',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🟢🟢🟢',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🟡🟢🟡🟢🟡',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🟡',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🟢',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，在原队列队首加一个🟡，队尾加一个🟢。',
+            hint: '👉🏻 利用颜色通道和【比较器】构成循环体。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🟡🔵🔵🔴🟢',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🟡🔵🔴🔵🔵🟢',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🟡🔵🔵🔵🟢',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🟡🔴🔵🔴🔵🔴🟢',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🟡🔴🟢',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🟡🔵🟢',
+                },
+                {
+                    data: '', // 序列
+                    accept: '🟡🟢',
+                },
+            ],
+            units: [
+                0, 1, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '如果把🔵当做1，🔴当做0，接受奇数的二进制串。',
+            hint: '👉🏻 保证最后一个球是蓝色就可以。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '如果把🔵当做1，🔴当做0，将原数乘以8。',
+            hint: '👉🏻 试试在序列末尾添加三个0吧。',
+            size: 7,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔵🔵🔴🔴🔴🔴',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔵🔴🔵🔵🔴🔴🔴',
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: '🔵🔴🔵🔴🔴🔴🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵🔴🔴🔴',
+                },
+            ],
+            units: [
+                3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '如果把🔵当做1，🔴当做0，接受大于15的二进制数。',
+            hint: '👉🏻 这关有点绕，仔细想想，想对思路则不难。',
+            size: 11,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔴🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔵🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔴🔴🔴🔴🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                5, 6, 7
+            ],
+        },
+        {
+            task: '如果把🔵当做1，🔴当做0，接受4的幂的二进制数。',
+            hint: '👉🏻 真正的考验来了，仔细想想，有巧妙的办法。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔴🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔵🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴🔴🔴🔵🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '如果序列是若干🔵，之后相等数量🔴，则接受。',
+            hint: '👉🏻 有点难，必须巧用🟡🟢控制。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔵🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '如果🔵的数量和🔴的数量相等，则接受。',
+            hint: '👉🏻 诀窍是巧妙地一个一个比较。',
+            size: 11,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔴🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔵🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '任意X🔵X🔴，再X🔵，则接受。',
+            hint: '👉🏻 这个很难，还是得用好🟢🟡标记。',
+            size: 11,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔴🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔴🔴🔵🔴🔵🔴🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔴🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，将队列的🔴和🔵互换',
+            hint: '👉🏻 这关不难，但你能用尽量少的元件解决吗？',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔴🔴🔵',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔴🔵🔴🔴',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔴🔴🔴',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🔵🔴🔵🔴🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔴',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，删掉所有的🔴，保留🔵',
+            hint: '👉🏻 这关不难，但你能用尽量少的元件解决吗？',
+            size: 5,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔵🔵',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🔵🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '🤖走到🚩，将序列中的最后一个球移动到序列头部。',
+            hint: '👉🏻 你会用冒泡排序吗？原理类似？',
+            size: 11,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔴🔵🔵',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔵🔵🔴🔵',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: '🔴🔴🔵🔴🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔴🔵', // 序列
+                    accept: '🔵🔴🔵🔴🔵🔴🔴',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '若🔵数量多于🔴，则接受。',
+            hint: '👉🏻 学会熟练运用循环，你就能很容易解决这类问题了。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: false,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '只接受回文串序列。',
+            hint: '👉🏻 可以建立循环，一次一次比较。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔴🔵🔴🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '若🔵数量恰好是🔴的两倍，则接受。',
+            hint: '👉🏻 可以建立循环，一次一次比较。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: false,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔵🔵', // 序列
+                    accept: true,
+                },
+                {
+                    data: '🔴🔵🔴🔵🔴🔴🔵🔴🔵🔴', // 序列
+                    accept: false,
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '序列限定为M🔵N🔴，M、N为整数，若M大于N则输出M🔵，否则输出N🔴。',
+            hint: '👉🏻 这关需要动动脑筋。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔵🔵🔴', // 序列
+                    accept: '🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵🔴', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔴🔴🔴', // 序列
+                    accept: '🔴🔴🔴',
+                },
+                {
+                    data: '🔵🔴🔴', // 序列
+                    accept: '🔴🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔴',
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴🔴', // 序列
+                    accept: '🔵🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵🔵🔴🔴🔴🔴', // 序列
+                    accept: '🔴🔴🔴🔴',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '对任意序列进行排序，将所有的🔵排在🔴之前。',
+            hint: '👉🏻 实现排序算法。',
+            size: 9,
+            tests: [ // 测试序列
+                {
+                    data: '🔴🔵🔵', // 序列
+                    accept: '🔵🔵🔴',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔵🔵🔵🔴',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔴🔴🔴', // 序列
+                    accept: '🔵🔵🔴🔴🔴',
+                },
+                {
+                    data: '🔴🔵🔴', // 序列
+                    accept: '🔵🔴🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔴',
+                },
+                {
+                    data: '🔵🔴🔵🔵🔴🔵', // 序列
+                    accept: '🔵🔵🔵🔵🔴🔴',
+                },
+                {
+                    data: '🔴🔵🔵🔴🔵🔵🔴🔴', // 序列
+                    accept: '🔵🔵🔵🔵🔴🔴🔴🔴',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+        {
+            task: '复制任意序列，将它完全复制后追加到它自身的末尾。',
+            hint: '👉🏻 用循环可实现。',
+            size: 13,
+            tests: [ // 测试序列
+                {
+                    data: '🔴🔵🔵', // 序列
+                    accept: '🔴🔵🔵🔴🔵🔵',
+                },
+                {
+                    data: '🔵🔴🔵🔵', // 序列
+                    accept: '🔵🔴🔵🔵🔵🔴🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔵', // 序列
+                    accept: '🔵🔵🔵🔵🔵🔵',
+                },
+                {
+                    data: '🔵🔵🔴🔴🔴', // 序列
+                    accept: '🔵🔵🔴🔴🔴🔵🔵🔴🔴🔴',
+                },
+                {
+                    data: '🔴🔵🔴', // 序列
+                    accept: '🔴🔵🔴🔴🔵🔴',
+                },
+                {
+                    data: '🔵', // 序列
+                    accept: '🔵🔵',
+                },
+                {
+                    data: '🔴', // 序列
+                    accept: '🔴🔴',
+                },
+                {
+                    data: '🔵🔴🔵🔵🔴🔵', // 序列
+                    accept: '🔵🔴🔵🔵🔴🔵🔵🔴🔵🔵🔴🔵',
+                },
+                {
+                    data: '🔴🔵🔵🔴', // 序列
+                    accept: '🔴🔵🔵🔴🔴🔵🔵🔴',
+                },
+                {
+                    data: '', // 序列
+                    accept: true,
+                },
+            ],
+            units: [
+                0, 1, 2, 3, 4, 5, 6, 7
+            ],
+        },
+    ];
+
+    let currentLevel;
+    function loadLevel(level) {
+        const data = levels[level];
+        currentLevel = {
+            ...data,
+            level,
+        };
+        taskInfo.innerHTML = `<p>任务：${data.task}</p><p>提示：${data.hint}</p>`;
+        const items = document.querySelectorAll('.buttons > div');
+        for(let i = 0; i < items.length; i++) {
+            if(!data.units.includes(i)) {
+                items[i].classList.add('hide');
+            } else {
+                items[i].classList.remove('hide');
+            }
+        }
+        setDataList([...data.tests[0].data]);
+
+        const board = new Array(169);
+        board.fill(-1);
+
+        const size = data.size || 13;
+        const v = (13 - size) / 2;
+        const range = [
+            v, v,
+            v + size, v + size,
+        ];
+
+        const [a, b, c, d] = range;
+        for(let i = a; i < c; i++) {
+            for(let j = b; j < d; j++) {
+                const idx = i * 13 + j;
+                board[idx] = 0;
+            }
+        }
+
+        const s = v + Math.floor(size / 2);
+        const start = v * 13 + s;
+        const end = (v + size - 1) * 13 + s;
+        board[start] = 1;
+        board[end] = 2;
+        init(board);
+
+        const savedData = localStorage.getItem(`manufactoria-level-${level}`);
+        if(savedData) {
+            const data = JSON.parse(savedData);
+            for(let i = 0; i < data.cells.length; i++) {
+                const cell = data.cells[i];
+                const el = document.createElement('div');
+                el.className = cell.state;
+                el.dataset.turn = cell.turn;
+                el.dataset.flip = cell.flip;
+                app.children[cell.idx].appendChild(el);
+            }
+        }
+        setRobot();
+
+        return currentLevel;
+    }
+
+    // 运行
+    async function run() {
+        levelPicker.disabled = true;
+        const tests = currentLevel.tests;
+        initResult();
+
+        for(let i = 0; i < tests.length; i++) {
+            const {data, accept} = tests[i];
+            setDataList([...data]);
+
+            setRobot();
+            await sleep();
+            await moveRobot('down');
+
+            while(true) {
+                if(main.className !== 'running') break;
+                const state = checkState();
+                if(state.direction) {
+                    if(state.type === 'comparator' && state.data) {
+                        await Promise.all([
+                            moveRobot(state.direction),
+                            popData(),
+                        ]);
+                    } else {
+                        await moveRobot(state.direction);
+                        if(state.effect) {
+                            appendData(state.effect);
+                        }
+                    }
+                } else {
+                    break;
+                }
+            }
+            if(main.className !== 'running') break;
+
+            const cell = getRobotCell();
+
+            if(accept === true) {
+                appendResult(cell.className === 'flag');
+            } else if(typeof accept === 'string') {
+                if(cell.className !== 'flag') {
+                    appendResult(false);
+                } else {
+                    appendResult(accept === getIOData());
+                }
+            } else {
+                appendResult(cell.className !== 'flag');
+            }
+            await sleep(500);
+        }
+        runBtn.className = 'btn';
+        runBtn.disabled = false;
+        if(main.className === 'running') {
+            const success = !result.textContent.includes('E');
+            const el = document.createElement('span');
+            el.innerHTML = success? '：成功':'：失败';
+            if(success) el.className = 'accept';
+            result.appendChild(el);
+            setDataList([]);
+        }
+        main.className = '';
+        levelPicker.disabled = false;
+        setRobot();
+    }
+
+    // 把数据保存到本地
+    function saveLevel() {
+        const {level} = currentLevel;
+        const data = {level, cells: []};
+        const cells = app.children;
+        for(let i = 0; i < 169; i++) {
+            const cell = cells[i];
+            if(cell.children.length) {
+                for(let j = 0; j < cell.children.length; j++) {
+                    const item = cell.children[j];
+                    const d = {
+                        state: item.className,
+                        turn: item.dataset.turn,
+                        flip: item.dataset.flip,
+                        idx: Number(cell.dataset.x) * 13 + Number(cell.dataset.y),
+                    };
+                    data.cells.push(d);
+                }
+            }
+        }
+        localStorage.setItem(`manufactoria-level-${level}`, JSON.stringify(data));
+    }
+
+    enablePicker(); // set once
+
+    function initLevelPicker() {
+        const len = levels.length;
+        levelPicker.innerHTML = '';
+        for(let i = 0; i < len; i++) {
+            const option = new Option(i + 1, i);
+            levelPicker.appendChild(option);
+        }
+        levelPicker.addEventListener('change', () => {
+            loadLevel(levelPicker.value);
+        });
+        loadLevel(levelPicker.value);
+    }
+
+    initLevelPicker();
+
+
+</script>
+</html>

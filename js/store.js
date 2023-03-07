@@ -52,7 +52,17 @@ const store = new Vuex.Store({
                 view: 100,
                 like: 99,
                 cover: 'cat.jpeg',
-                url: 'funny/vue_gobang.html'
+                url: 'game/vue_gobang.html'
+            },
+            {
+                type: '游戏',
+                createTime: '2023年3月07日',
+                title: '机器人流水线',
+                content: '来一局简简单单的机器人流水线',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'game/robot-manufactory.html'
             }
         ]
     },
