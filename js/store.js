@@ -4,16 +4,7 @@ const store = new Vuex.Store({
         typeIndex: 0,
         //关键字搜索
         searchText: '',
-        articleList: [{
-            type: '仿照',
-            createTime: '2022年11月11日',
-            title: '高仿小米官网',
-            content: '简简单单仿照一个小米官网咯',
-            view: 100,
-            like: 99,
-            cover: 'cat.jpeg',
-            url: 'mi/index.html'
-        },
+        articleList: [
             {
                 type: '有趣',
                 createTime: '2022年11月11日',
@@ -22,7 +13,7 @@ const store = new Vuex.Store({
                 view: 100,
                 like: 99,
                 cover: 'cat.jpeg',
-                url: 'funny/christmasTree.html'
+                url: 'page/funny/christmasTree.html'
             },
             {
                 type: '工具',
@@ -32,7 +23,7 @@ const store = new Vuex.Store({
                 view: 100,
                 like: 99,
                 cover: 'cat.jpeg',
-                url: 'tool/mybatis-tool.html'
+                url: 'page/tool/mybatis-tool.html'
             },
             {
                 type: '工具',
@@ -42,7 +33,7 @@ const store = new Vuex.Store({
                 view: 100,
                 like: 99,
                 cover: 'cat.jpeg',
-                url: 'tool/string-tool.html'
+                url: 'page/tool/string-tool.html'
             },
             {
                 type: '游戏',
@@ -52,17 +43,7 @@ const store = new Vuex.Store({
                 view: 100,
                 like: 99,
                 cover: 'cat.jpeg',
-                url: 'game/vue_gobang.html'
-            },
-            {
-                type: '游戏',
-                createTime: '2023年3月07日',
-                title: '机器人流水线',
-                content: '来一局简简单单的机器人流水线',
-                view: 100,
-                like: 99,
-                cover: 'cat.jpeg',
-                url: 'game/robot-manufactory.html'
+                url: 'page/game/vue_gobang.html'
             }
         ]
     },
