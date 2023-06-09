@@ -16,6 +16,16 @@ const store = new Vuex.Store({
                 url: 'page/funny/christmasTree.html'
             },
             {
+                type: '有趣',
+                createTime: '2023年06月09日',
+                title: '八卦阵时钟',
+                content: '简简单单的八卦阵时钟',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'page/funny/bg-clock.html'
+            },
+            {
                 type: '工具',
                 createTime: '2022年12月13日',
                 title: 'mybatis日志解析成可执行SQL',
