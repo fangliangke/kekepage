@@ -36,6 +36,16 @@ const store = new Vuex.Store({
                 url: 'page/tool/string-tool.html'
             },
             {
+                type: '工具',
+                createTime: '2023年06月09日',
+                title: '表格转字符串',
+                content: '将excel中内容按规则转为字符串',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'page/tool/table-excel.html'
+            },
+            {
                 type: '游戏',
                 createTime: '2023年2月09日',
                 title: '五子棋',

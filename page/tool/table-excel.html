@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>表格转字符串</title>
+</head>
+<style>
+    #output {
+        margin: 16px 0 7px;
+        width: 100%;
+        height: 160px;
+        overflow: auto;
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #2c3e50;
+        box-sizing: border-box;
+    }
+
+    .temp-str {
+        margin: 16px 0 7px;
+        width: 100%;
+        height: 43px;
+        overflow: auto;
+        border: 1px solid #ccc;
+        background: #fff;
+        color: #2c3e50;
+        box-sizing: border-box;
+    }
+
+    textarea:focus {
+        outline-color: limegreen;
+    }
+
+    .button-group {
+        width: 100%;
+        height: 50px;
+        text-align: center;
+    }
+
+    .button-item {
+        color: mediumblue;
+        width: 100px;
+        height: 60px;
+        cursor: pointer;
+    }
+</style>
+<script type="text/javascript" src="../../plugins/handsontable/handsontable.full.min.js"></script>
+<script type="text/javascript" src="../../plugins/handsontable/zh-CN.js"></script>
+
+<link rel="stylesheet" href="../../plugins/handsontable/handsontable.full.min.css"/>
+<body>
+<div id="table-div" style="height: 400px"></div>
+<br/>
+<div>模板</div>
+<textarea id="tempStr" class="temp-str">select '#{A}' a, '#{B}' b, '#{C}' c from dual;</textarea>
+<div class="button-group">
+    <button id="getButton" class="button-item">执行</button>
+</div>
+<textarea id="output"></textarea>
+</body>
+<script>
+    const container = document.getElementById('table-div');
+    const tempStr = document.getElementById('tempStr');
+    const output = document.getElementById('output');
+    const getButton = document.querySelector('#getButton');
+
+    const hot = new Handsontable(container, {
+        data: [
+            ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', '', '', '', '', '', '', ''],
+        ],
+        width: '100%',
+        height: 320,
+        rowHeaders: true,
+        colHeaders: true,
+        contextMenu: true,
+        colWidths: 100,
+        manualColumnMove: true,
+        language: 'zh-CN',
+        licenseKey: 'non-commercial-and-evaluation'
+    });
+
+    getButton.addEventListener('click', event => {
+        let str = tempStr.value;
+        output.value = "";
+        let start = 'A'.charCodeAt();
+        let regexSig = /(?<=\#\{)(.)(?=\})/g;
+        var match = str.match(regexSig);
+        const data = hot.getData() || [];
+        data.forEach((value, index, data) => {
+            // debugger;
+            let selected = value;
+            var outPutStr = tempStr.value;
+            for (let i = 0; i < match.length; i++) {
+                let t = match[i];
+                let index = t.charCodeAt() - start;
+                let re = new RegExp("#{" + t + "}", "g");
+                outPutStr = outPutStr.replace(re, selected[index])
+
+            }
+            console.log(outPutStr)
+            output.value += outPutStr + "\n";
+        })
+
+    });
+</script>
+</html>
