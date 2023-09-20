@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<title>Test Map</title>
+<link rel="stylesheet" href="https://js.arcgis.com/3.8/js/esri/css/esri.css" />
+<script src="https://js.arcgis.com/3.8/init.js"></script>
+<style>
+        /* 指定样式 */
+        html, body, #map{
+            height: 100%;
+            margin: 0;
+        }
+
+    </style>
+</head>
+<body>
+    <!-- 地图容器 -->
+    <div id="toolbar">
+        <button onclick="drawPointLine()">点线</button>
+        <button onclick="drawPointArea()">点面</button>
+        <button onclick="drawLine()">画线</button>
+        <button onclick="drawArea()">画面</button>
+        <button onclick="drawCircle()">画圆</button>
+        <button onclick="drawElltpse()">画椭圆</button>
+        <button onclick="drawPoint()">画点</button>
+        <button onclick="drawArrow()">画箭头</button>
+        <button onclick="drawRectangle()">画矩形</button>
+    </div>
+    <div id="map">
+    </div>
+
+    <script>
+        var MyGraphicsLayer = null;
+        var MyGeometryServerToolbar = null;
+        var MyGeometryData = null;
+        var MyGeometryService = null;
+        var MyMap = null;
+        dojo.require("esri.map");//块加载地图组件
+        dojo.require("esri.toolbars.draw");
+        dojo.require("esri.tasks.LengthsParameters");
+        dojo.require("esri.tasks.AreasAndLengthsParameters");
+        dojo.addOnLoad(function ()
+        {
+            MyMap = new esri.Map("map",{
+                logo : false,
+                center : [116.4,39.9],
+                zoom : 6
+            });
+            MyGeometryService = new esri.tasks.GeometryService(
+                "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer");//创建几何服务对象，url地址为几何服务地址
+            MyMap.on("load",function(){
+                MyGeometryServerToolbar = new esri.toolbars.Draw(MyMap);//创建绘图工具对象
+
+                MyGraphicsLayer = new esri.layers.GraphicsLayer();
+                MyMap.addLayer(MyGraphicsLayer);
+
+                initTools();//绑定画图事件
+            });
+
+            var MyTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer
+            ("http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
+            MyMap.addLayer(MyTiledMapServiceLayer);
+        });
+        function initTools(){
+            dojo.addOnLoad(function(){
+                dojo.connect(MyGeometryService, "onLengthsComplete", MyOutputDistance);//绑定长度计算完成后事件
+                dojo.connect(MyGeometryService, "onAreasAndLengthsComplete",MyOutputAreaAndLength);//绑定面积周长完成后事件
+                dojo.connect(MyGeometryServerToolbar, "onDrawEnd", function(geometry) {//绑定绘图结束事件
+                    MyGeometryData = geometry;
+                    switch (geometry.type) {
+                        case "point":
+                            var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
+                            break;
+                        case "polyline":
+                            var lengthParams = new esri.tasks.LengthsParameters();//长度计算对象
+                            lengthParams.polylines = [geometry];
+                            lengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
+                            lengthParams.geodesic = true;
+                            MyGeometryService.lengths(lengthParams);
+                            var symbol = new esri.symbol.SimpleLineSymbol();
+                            break;
+                        case "polygon":
+                            var areasAndLengthParams = new esri.tasks.AreasAndLengthsParameters();//面积周长计算对象
+                            areasAndLengthParams.polygons = [geometry];
+                            areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_SQUARE_KILOMETERS;
+                            areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_KILOMETER;
+                            outSR = new esri.SpatialReference(102100);
+                            MyGeometryService.project([geometry],outSR,function(geometry){
+                                MyGeometryService.simplify(geometry, function(simplifiedGeometries) {
+                                    areasAndLengthParams.polygons = simplifiedGeometries;
+                                    MyGeometryService.areasAndLengths(areasAndLengthParams);
+                                });
+                            });
+                            var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_NONE, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255,0,0]), 2), new dojo.Color([255,255,0,0.25]));
+                            break;
+                    }
+                    MyGraphicsLayer.add(new esri.Graphic(geometry,symbol));
+                });
+            });
+        }
+        function drawPointLine(){
+            MyGeometryServerToolbar.deactivate();//清除画图状态
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POLYLINE);//绘制图形方法
+        }
+        function drawPointArea(){
+            MyGeometryServerToolbar.deactivate();//清除画图状态
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POLYGON);//绘制图形方法
+        }
+        function drawLine(){
+            MyGeometryServerToolbar.deactivate();//清除画图状态
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYLINE);//绘制图形方法
+        }
+        function drawArea(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYGON);
+        }
+        function drawCircle(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.CIRCLE);
+        }
+        function drawElltpse(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.ELLIPSE);
+        }
+        function drawPoint(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POINT);
+        }
+        function drawRectangle(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.RECTANGLE);
+        }
+        function drawArrow(){
+            MyGeometryServerToolbar.deactivate();
+            MyGeometryServerToolbar.activate(esri.toolbars.Draw.ARROW);
+        }
+        function MyOutputDistance(result){//长度计算后执行此方法
+            console.info(result);
+            console.info(MyGeometryData);
+            MyMap.infoWindow.setTitle("距离测量");//设置弹框的标题
+            MyMap.infoWindow.setContent("&nbsp;测量距离为：<strong>" + dojo.number.format(result.lengths[0]/1000) + "千米</strong>");//设置弹框内容
+            var  CurX   =  MyGeometryData.paths[0][MyGeometryData.paths[0].length - 1][0];//计算弹框显示位置经度
+            var  CurY   =  MyGeometryData.paths[0][MyGeometryData.paths[0].length - 1][1];//计算弹框显示位置纬度
+            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, MyMap.spatialReference);//创建点对象
+            MyMap.infoWindow.show(CurPos);//在当前点位置显示弹框
+        }
+        function MyOutputAreaAndLength(result){//面积计算后执行此方法
+            MyMap.infoWindow.setTitle("面积测量");
+            MyMap.infoWindow.setContent("&nbsp;测量面积为：<strong>" + dojo.number.format(result.areas[0]) + "平方公里</strong><br/>"+"&nbsp;周长为：<strong>" + dojo.number.format(result.lengths[0]) + "千米</strong>");
+            var  CurX   =  MyGeometryData.rings[0][MyGeometryData.rings[0].length - 1][0];
+            var  CurY   =  MyGeometryData.rings[0][MyGeometryData.rings[0].length - 1][1];
+            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, MyMap.spatialReference);
+            MyMap.infoWindow.show(CurPos);
+        }
+    </script>
+</body>
+</html>
