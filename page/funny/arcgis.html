@@ -26,48 +26,50 @@
         <button onclick="drawPoint()">画点</button>
         <button onclick="drawArrow()">画箭头</button>
         <button onclick="drawRectangle()">画矩形</button>
+        <button onclick="clearDraw()">清屏</button>
+        <button onclick="listPoint()">渲染坐标点</button>
     </div>
     <div id="map">
     </div>
 
     <script>
-        var MyGraphicsLayer = null;
-        var MyGeometryServerToolbar = null;
-        var MyGeometryData = null;
-        var MyGeometryService = null;
-        var MyMap = null;
+        var myGraphicsLayer = null;
+        var myGeometryServerToolbar = null;
+        var myGeometryData = null;
+        var myGeometryService = null;
+        var myMap = null;
         dojo.require("esri.map");//块加载地图组件
         dojo.require("esri.toolbars.draw");
         dojo.require("esri.tasks.LengthsParameters");
         dojo.require("esri.tasks.AreasAndLengthsParameters");
         dojo.addOnLoad(function ()
         {
-            MyMap = new esri.Map("map",{
+            myMap = new esri.Map("map",{
                 logo : false,
                 center : [116.4,39.9],
                 zoom : 6
             });
-            MyGeometryService = new esri.tasks.GeometryService(
+            myGeometryService = new esri.tasks.GeometryService(
                 "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer");//创建几何服务对象，url地址为几何服务地址
-            MyMap.on("load",function(){
-                MyGeometryServerToolbar = new esri.toolbars.Draw(MyMap);//创建绘图工具对象
+            myMap.on("load",function(){
+                myGeometryServerToolbar = new esri.toolbars.Draw(myMap);//创建绘图工具对象
 
-                MyGraphicsLayer = new esri.layers.GraphicsLayer();
-                MyMap.addLayer(MyGraphicsLayer);
+                myGraphicsLayer = new esri.layers.GraphicsLayer();
+                myMap.addLayer(myGraphicsLayer);
 
                 initTools();//绑定画图事件
             });
 
-            var MyTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer
-            ("http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
-            MyMap.addLayer(MyTiledMapServiceLayer);
+            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
+            myMap.addLayer(myTiledMapServiceLayer);
         });
         function initTools(){
             dojo.addOnLoad(function(){
-                dojo.connect(MyGeometryService, "onLengthsComplete", MyOutputDistance);//绑定长度计算完成后事件
-                dojo.connect(MyGeometryService, "onAreasAndLengthsComplete",MyOutputAreaAndLength);//绑定面积周长完成后事件
-                dojo.connect(MyGeometryServerToolbar, "onDrawEnd", function(geometry) {//绑定绘图结束事件
-                    MyGeometryData = geometry;
+                dojo.connect(myGeometryService, "onLengthsComplete", myOutputDistance);//绑定长度计算完成后事件
+                dojo.connect(myGeometryService, "onAreasAndLengthsComplete",myOutputAreaAndLength);//绑定面积周长完成后事件
+                dojo.connect(myGeometryServerToolbar, "onDrawEnd", function(geometry) {//绑定绘图结束事件
+                    myGeometryData = geometry;
+                    console.log(myGeometryData);
                     switch (geometry.type) {
                         case "point":
                             var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
@@ -77,7 +79,7 @@
                             lengthParams.polylines = [geometry];
                             lengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_METER;
                             lengthParams.geodesic = true;
-                            MyGeometryService.lengths(lengthParams);
+                            myGeometryService.lengths(lengthParams);
                             var symbol = new esri.symbol.SimpleLineSymbol();
                             break;
                         case "polygon":
@@ -86,72 +88,1257 @@
                             areasAndLengthParams.areaUnit = esri.tasks.GeometryService.UNIT_SQUARE_KILOMETERS;
                             areasAndLengthParams.lengthUnit = esri.tasks.GeometryService.UNIT_KILOMETER;
                             outSR = new esri.SpatialReference(102100);
-                            MyGeometryService.project([geometry],outSR,function(geometry){
-                                MyGeometryService.simplify(geometry, function(simplifiedGeometries) {
+                            myGeometryService.project([geometry],outSR,function(geometry){
+                                myGeometryService.simplify(geometry, function(simplifiedGeometries) {
                                     areasAndLengthParams.polygons = simplifiedGeometries;
-                                    MyGeometryService.areasAndLengths(areasAndLengthParams);
+                                    myGeometryService.areasAndLengths(areasAndLengthParams);
                                 });
                             });
                             var symbol = new esri.symbol.SimpleFillSymbol(esri.symbol.SimpleFillSymbol.STYLE_NONE, new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_DASHDOT, new dojo.Color([255,0,0]), 2), new dojo.Color([255,255,0,0.25]));
                             break;
                     }
-                    MyGraphicsLayer.add(new esri.Graphic(geometry,symbol));
+                    myGraphicsLayer.add(new esri.Graphic(geometry,symbol));
                 });
             });
         }
         function drawPointLine(){
-            MyGeometryServerToolbar.deactivate();//清除画图状态
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POLYLINE);//绘制图形方法
+            myGeometryServerToolbar.deactivate();//清除画图状态
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.POLYLINE);//绘制图形方法
         }
         function drawPointArea(){
-            MyGeometryServerToolbar.deactivate();//清除画图状态
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POLYGON);//绘制图形方法
+            myGeometryServerToolbar.deactivate();//清除画图状态
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.POLYGON);//绘制图形方法
         }
         function drawLine(){
-            MyGeometryServerToolbar.deactivate();//清除画图状态
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYLINE);//绘制图形方法
+            myGeometryServerToolbar.deactivate();//清除画图状态
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYLINE);//绘制图形方法
         }
         function drawArea(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYGON);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.FREEHAND_POLYGON);
         }
         function drawCircle(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.CIRCLE);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.CIRCLE);
         }
         function drawElltpse(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.ELLIPSE);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.ELLIPSE);
         }
         function drawPoint(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.POINT);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.POINT);
         }
         function drawRectangle(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.RECTANGLE);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.RECTANGLE);
         }
         function drawArrow(){
-            MyGeometryServerToolbar.deactivate();
-            MyGeometryServerToolbar.activate(esri.toolbars.Draw.ARROW);
+            myGeometryServerToolbar.deactivate();
+            myGeometryServerToolbar.activate(esri.toolbars.Draw.ARROW);
         }
-        function MyOutputDistance(result){//长度计算后执行此方法
-            console.info(result);
-            console.info(MyGeometryData);
-            MyMap.infoWindow.setTitle("距离测量");//设置弹框的标题
-            MyMap.infoWindow.setContent("&nbsp;测量距离为：<strong>" + dojo.number.format(result.lengths[0]/1000) + "千米</strong>");//设置弹框内容
-            var  CurX   =  MyGeometryData.paths[0][MyGeometryData.paths[0].length - 1][0];//计算弹框显示位置经度
-            var  CurY   =  MyGeometryData.paths[0][MyGeometryData.paths[0].length - 1][1];//计算弹框显示位置纬度
-            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, MyMap.spatialReference);//创建点对象
-            MyMap.infoWindow.show(CurPos);//在当前点位置显示弹框
+        function myOutputDistance(result){//长度计算后执行此方法
+            myMap.infoWindow.setTitle("距离测量");//设置弹框的标题
+            myMap.infoWindow.setContent("&nbsp;测量距离为：<strong>" + dojo.number.format(result.lengths[0]/1000) + "千米</strong>");//设置弹框内容
+            var  CurX   =  myGeometryData.paths[0][myGeometryData.paths[0].length - 1][0];//计算弹框显示位置经度
+            var  CurY   =  myGeometryData.paths[0][myGeometryData.paths[0].length - 1][1];//计算弹框显示位置纬度
+            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, myMap.spatialReference);//创建点对象
+            myMap.infoWindow.show(CurPos);//在当前点位置显示弹框
         }
-        function MyOutputAreaAndLength(result){//面积计算后执行此方法
-            MyMap.infoWindow.setTitle("面积测量");
-            MyMap.infoWindow.setContent("&nbsp;测量面积为：<strong>" + dojo.number.format(result.areas[0]) + "平方公里</strong><br/>"+"&nbsp;周长为：<strong>" + dojo.number.format(result.lengths[0]) + "千米</strong>");
-            var  CurX   =  MyGeometryData.rings[0][MyGeometryData.rings[0].length - 1][0];
-            var  CurY   =  MyGeometryData.rings[0][MyGeometryData.rings[0].length - 1][1];
-            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, MyMap.spatialReference);
-            MyMap.infoWindow.show(CurPos);
+        function myOutputAreaAndLength(result){//面积计算后执行此方法
+            myMap.infoWindow.setTitle("面积测量");
+            myMap.infoWindow.setContent("&nbsp;测量面积为：<strong>" + dojo.number.format(result.areas[0]) + "平方公里</strong><br/>"+"&nbsp;周长为：<strong>" + dojo.number.format(result.lengths[0]) + "千米</strong>");
+            var  CurX   =  myGeometryData.rings[0][myGeometryData.rings[0].length - 1][0];
+            var  CurY   =  myGeometryData.rings[0][myGeometryData.rings[0].length - 1][1];
+            var  CurPos  =  new  esri.geometry.Point(CurX, CurY, myMap.spatialReference);
+            myMap.infoWindow.show(CurPos);
+        }
+        function clearDraw() {
+
+            myMap.infoWindow.destroy()
+            myGraphicsLayer.clear()
+        }
+
+        function listPoint() {
+            let data = [
+                {
+                    "id": 0.3931446478184326,
+                    "x": "113.25308151182844",
+                    "y": "23.01542835708823"
+                },
+                {
+                    "id": 0.22192212181981663,
+                    "x": "113.47961960177855",
+                    "y": "23.039992361813958"
+                },
+                {
+                    "id": 0.6120042506493226,
+                    "x": "113.48793019284072",
+                    "y": "22.99427368724776"
+                },
+                {
+                    "id": 0.03354509778290238,
+                    "x": "113.29511636098371",
+                    "y": "22.967119691040654"
+                },
+                {
+                    "id": 0.37860714869391043,
+                    "x": "113.2798959811665",
+                    "y": "22.962956453628713"
+                },
+                {
+                    "id": 0.5618295556309316,
+                    "x": "113.45937609329198",
+                    "y": "23.057852250181906"
+                },
+                {
+                    "id": 0.7667925560173912,
+                    "x": "113.47478082484152",
+                    "y": "23.048907579606837"
+                },
+                {
+                    "id": 0.9073491859319853,
+                    "x": "113.26247509679997",
+                    "y": "23.02461968956743"
+                },
+                {
+                    "id": 0.4699925576968944,
+                    "x": "113.3062711646058",
+                    "y": "23.043990297568172"
+                },
+                {
+                    "id": 0.39064311426773246,
+                    "x": "113.4691675015921",
+                    "y": "23.006033367118075"
+                },
+                {
+                    "id": 0.6544916312496696,
+                    "x": "113.42252106646772",
+                    "y": "22.948411913122357"
+                },
+                {
+                    "id": 0.31610519596466924,
+                    "x": "113.32223859540012",
+                    "y": "22.91242660206419"
+                },
+                {
+                    "id": 0.8136298838852676,
+                    "x": "113.48153063329369",
+                    "y": "22.91228355990896"
+                },
+                {
+                    "id": 0.7697669592043574,
+                    "x": "113.48177449758444",
+                    "y": "22.911783483624948"
+                },
+                {
+                    "id": 0.838123651123523,
+                    "x": "113.29088714322269",
+                    "y": "22.930799807796816"
+                },
+                {
+                    "id": 0.19872106675641077,
+                    "x": "113.42411934401683",
+                    "y": "22.948582739822054"
+                },
+                {
+                    "id": 0.6993587423812164,
+                    "x": "113.43009398275701",
+                    "y": "22.91914221245831"
+                },
+                {
+                    "id": 0.8656580877974034,
+                    "x": "113.26400649896802",
+                    "y": "23.044539034236376"
+                },
+                {
+                    "id": 0.4810303550731394,
+                    "x": "113.39542906772697",
+                    "y": "23.02841159495659"
+                },
+                {
+                    "id": 0.08988090685527572,
+                    "x": "113.46148816327931",
+                    "y": "23.03057433691278"
+                },
+                {
+                    "id": 0.12357967510705037,
+                    "x": "113.38506403845703",
+                    "y": "23.01507223792577"
+                },
+                {
+                    "id": 0.6888906625020086,
+                    "x": "113.38565755959067",
+                    "y": "23.018367526627436"
+                },
+                {
+                    "id": 0.9487832026114444,
+                    "x": "113.40563068347853",
+                    "y": "23.03493851578628"
+                },
+                {
+                    "id": 0.1075398145472668,
+                    "x": "113.5049498297752",
+                    "y": "22.976799246565893"
+                },
+                {
+                    "id": 0.9392244932637264,
+                    "x": "113.41070074460954",
+                    "y": "23.05528737027706"
+                },
+                {
+                    "id": 0.644829309962488,
+                    "x": "113.36380574100484",
+                    "y": "23.062064077323566"
+                },
+                {
+                    "id": 0.5765442582683258,
+                    "x": "113.28894571933131",
+                    "y": "22.97041387887485"
+                },
+                {
+                    "id": 0.38604203813942806,
+                    "x": "113.27271100001407",
+                    "y": "23.025199747988008"
+                },
+                {
+                    "id": 0.8896250813081801,
+                    "x": "113.51159678839241",
+                    "y": "22.97545231488411"
+                },
+                {
+                    "id": 0.87431733251808,
+                    "x": "113.25498375956222",
+                    "y": "22.968309999849996"
+                },
+                {
+                    "id": 0.8934054192415257,
+                    "x": "113.4479456499882",
+                    "y": "23.062131641696357"
+                },
+                {
+                    "id": 0.13570023786480112,
+                    "x": "113.27138843893837",
+                    "y": "23.026220629210613"
+                },
+                {
+                    "id": 0.6586897888136058,
+                    "x": "113.46113978948094",
+                    "y": "22.916839100769796"
+                },
+                {
+                    "id": 0.9051390204509817,
+                    "x": "113.46925893879452",
+                    "y": "22.91449664324567"
+                },
+                {
+                    "id": 0.2965983174602629,
+                    "x": "113.27556583138953",
+                    "y": "22.9612352909513"
+                },
+                {
+                    "id": 0.8003352138775608,
+                    "x": "113.28544697707686",
+                    "y": "22.930562878263185"
+                },
+                {
+                    "id": 0.24926086922793922,
+                    "x": "113.41174706938624",
+                    "y": "22.9167503801181"
+                },
+                {
+                    "id": 0.20019742866328483,
+                    "x": "113.28433627663577",
+                    "y": "22.996292300742567"
+                },
+                {
+                    "id": 0.9380078300290311,
+                    "x": "113.48856877254931",
+                    "y": "22.9288795379336"
+                },
+                {
+                    "id": 0.5741184137739972,
+                    "x": "113.49795597285849",
+                    "y": "22.92314415067467"
+                },
+                {
+                    "id": 0.9406771147772388,
+                    "x": "113.49244676679369",
+                    "y": "22.95191043480137"
+                },
+                {
+                    "id": 0.5155489304205034,
+                    "x": "113.4170448427032",
+                    "y": "22.938534444763153"
+                },
+                {
+                    "id": 0.5724905587952702,
+                    "x": "113.45437534223615",
+                    "y": "22.933055635696523"
+                },
+                {
+                    "id": 0.6802005466673355,
+                    "x": "113.47138196638068",
+                    "y": "22.94103039494566"
+                },
+                {
+                    "id": 0.1788009486242208,
+                    "x": "113.43852471939407",
+                    "y": "22.943785758262912"
+                },
+                {
+                    "id": 0.5657862514261076,
+                    "x": "113.31333931849841",
+                    "y": "22.890824379419673"
+                },
+                {
+                    "id": 0.019933428631232486,
+                    "x": "113.28967857469279",
+                    "y": "22.92470519755457"
+                },
+                {
+                    "id": 0.3967506812700514,
+                    "x": "113.34789016660669",
+                    "y": "22.9171436588882"
+                },
+                {
+                    "id": 0.4565737342511289,
+                    "x": "113.32747125621589",
+                    "y": "23.024565686718375"
+                },
+                {
+                    "id": 0.1366083862007701,
+                    "x": "113.26851043782425",
+                    "y": "23.027306837212848"
+                },
+                {
+                    "id": 0.011764923623430512,
+                    "x": "113.42474534611175",
+                    "y": "23.064942460001422"
+                },
+                {
+                    "id": 0.15263986909254057,
+                    "x": "113.38355257753071",
+                    "y": "22.915149709467595"
+                },
+                {
+                    "id": 0.852374075979834,
+                    "x": "113.36321522456582",
+                    "y": "22.934446655220402"
+                },
+                {
+                    "id": 0.6031284813081583,
+                    "x": "113.52484493655183",
+                    "y": "22.906081435312522"
+                },
+                {
+                    "id": 0.010284335793256494,
+                    "x": "113.28062306148352",
+                    "y": "23.021122451488832"
+                },
+                {
+                    "id": 0.4895238753351654,
+                    "x": "113.51908013573056",
+                    "y": "22.89474346391708"
+                },
+                {
+                    "id": 0.7628405972958192,
+                    "x": "113.370825079246",
+                    "y": "23.039003895677926"
+                },
+                {
+                    "id": 0.9289160165167598,
+                    "x": "113.29473921070407",
+                    "y": "22.934671114950035"
+                },
+                {
+                    "id": 0.9396293005255039,
+                    "x": "113.50140751164446",
+                    "y": "22.916136419653892"
+                },
+                {
+                    "id": 0.8750425564435067,
+                    "x": "113.33615163239062",
+                    "y": "22.89444567665263"
+                },
+                {
+                    "id": 0.40052467119223545,
+                    "x": "113.34451620274756",
+                    "y": "22.931964175951464"
+                },
+                {
+                    "id": 0.22036310978720897,
+                    "x": "113.34468488235568",
+                    "y": "22.932150806592258"
+                },
+                {
+                    "id": 0.2525507352665586,
+                    "x": "113.31542066922944",
+                    "y": "23.030105296305194"
+                },
+                {
+                    "id": 0.5987309833805035,
+                    "x": "113.51049342505867",
+                    "y": "22.908891262094333"
+                },
+                {
+                    "id": 0.9803664659351086,
+                    "x": "113.49360807660747",
+                    "y": "22.903067387514685"
+                },
+                {
+                    "id": 0.14697435783280044,
+                    "x": "113.29874777562519",
+                    "y": "22.922172726186265"
+                },
+                {
+                    "id": 0.093508575419188,
+                    "x": "113.27745197954916",
+                    "y": "23.027283650070835"
+                },
+                {
+                    "id": 0.5511396821954497,
+                    "x": "113.53315786638437",
+                    "y": "22.881246615600205"
+                },
+                {
+                    "id": 0.4437540674093754,
+                    "x": "113.53000588748884",
+                    "y": "22.89053209627226"
+                },
+                {
+                    "id": 0.6441772395738941,
+                    "x": "113.3617780576522",
+                    "y": "23.038491809190887"
+                },
+                {
+                    "id": 0.024491170051009536,
+                    "x": "113.4297413016944",
+                    "y": "22.934843112948"
+                },
+                {
+                    "id": 0.4324458595826133,
+                    "x": "113.30210117089564",
+                    "y": "22.92655411917507"
+                },
+                {
+                    "id": 0.47982121358731766,
+                    "x": "113.51203166203146",
+                    "y": "22.99970510781814"
+                },
+                {
+                    "id": 0.26283554321059355,
+                    "x": "113.3757388154776",
+                    "y": "22.93089167413074"
+                },
+                {
+                    "id": 0.1602675992106728,
+                    "x": "113.45232637770042",
+                    "y": "22.938996342082568"
+                },
+                {
+                    "id": 0.6164908370048912,
+                    "x": "113.3290188426176",
+                    "y": "22.925042403259656"
+                },
+                {
+                    "id": 0.4256404452671929,
+                    "x": "113.2851013833719",
+                    "y": "22.93247255602314"
+                },
+                {
+                    "id": 0.22103676651243553,
+                    "x": "113.41581597711914",
+                    "y": "23.048814939899756"
+                },
+                {
+                    "id": 0.6694182153984221,
+                    "x": "113.4887885428997",
+                    "y": "23.018745677179535"
+                },
+                {
+                    "id": 0.5062545623269408,
+                    "x": "113.2909801675206",
+                    "y": "22.898237169889857"
+                },
+                {
+                    "id": 0.07022979633912674,
+                    "x": "113.36685790539602",
+                    "y": "23.033296721743525"
+                },
+                {
+                    "id": 0.7182676976142244,
+                    "x": "113.33597475571237",
+                    "y": "23.03042617493107"
+                },
+                {
+                    "id": 0.21576959693276065,
+                    "x": "113.34210702528271",
+                    "y": "23.029544476266047"
+                },
+                {
+                    "id": 0.017224254414529128,
+                    "x": "113.27556369944246",
+                    "y": "22.993121571946638"
+                },
+                {
+                    "id": 0.1160856703712756,
+                    "x": "113.4881421937224",
+                    "y": "23.005290559710936"
+                },
+                {
+                    "id": 0.03049708812910623,
+                    "x": "113.35015755556066",
+                    "y": "22.89789687352817"
+                },
+                {
+                    "id": 0.5517462004323934,
+                    "x": "113.40907052495814",
+                    "y": "23.04020988162463"
+                },
+                {
+                    "id": 0.6434339500442978,
+                    "x": "113.5017475837822",
+                    "y": "23.023346606910675"
+                },
+                {
+                    "id": 0.648907609098277,
+                    "x": "113.29987149502867",
+                    "y": "23.028981050048838"
+                },
+                {
+                    "id": 0.5607181252814906,
+                    "x": "113.31093956211582",
+                    "y": "22.98903646345512"
+                },
+                {
+                    "id": 0.575079885627116,
+                    "x": "113.27442637163682",
+                    "y": "23.01901961937342"
+                },
+                {
+                    "id": 0.9515188853945757,
+                    "x": "113.48420943501438",
+                    "y": "23.03749193819518"
+                },
+                {
+                    "id": 0.902579132295726,
+                    "x": "113.29087306485641",
+                    "y": "23.02166784309626"
+                },
+                {
+                    "id": 0.07523274787614764,
+                    "x": "113.2912358959387",
+                    "y": "23.029906727695288"
+                },
+                {
+                    "id": 0.7714579334481702,
+                    "x": "113.36423391108798",
+                    "y": "23.05149106376837"
+                },
+                {
+                    "id": 0.5649229617021219,
+                    "x": "113.32488222467376",
+                    "y": "22.985342584777015"
+                },
+                {
+                    "id": 0.8039134257376264,
+                    "x": "113.39356119054018",
+                    "y": "23.070321801207722"
+                },
+                {
+                    "id": 0.03261474754766547,
+                    "x": "113.46717885596499",
+                    "y": "22.996615020533394"
+                },
+                {
+                    "id": 0.4186495164045285,
+                    "x": "113.37623395523892",
+                    "y": "23.039916429370173"
+                },
+                {
+                    "id": 0.7048378991996598,
+                    "x": "113.2987158140043",
+                    "y": "22.98199632180666"
+                },
+                {
+                    "id": 0.5054846248745248,
+                    "x": "113.30066199395486",
+                    "y": "22.895398500829298"
+                },
+                {
+                    "id": 0.8071130493369643,
+                    "x": "113.36380574100484",
+                    "y": "23.062064077323566"
+                },
+                {
+                    "id": 0.0690384350402995,
+                    "x": "113.50757547423339",
+                    "y": "22.92305784514966"
+                },
+                {
+                    "id": 0.37275332229701386,
+                    "x": "113.55220430781523",
+                    "y": "22.898714753056254"
+                },
+                {
+                    "id": 0.5763848858433778,
+                    "x": "113.55181223570969",
+                    "y": "22.88626810728927"
+                },
+                {
+                    "id": 0.49338706707895263,
+                    "x": "113.54569667934386",
+                    "y": "22.916684044188074"
+                },
+                {
+                    "id": 0.42701488760172257,
+                    "x": "113.27482217807578",
+                    "y": "23.044488206609433"
+                },
+                {
+                    "id": 0.18635371172181814,
+                    "x": "113.44593729883442",
+                    "y": "22.919934291828827"
+                },
+                {
+                    "id": 0.1370419719918825,
+                    "x": "113.53128407182395",
+                    "y": "22.94619114685337"
+                },
+                {
+                    "id": 0.400425841165132,
+                    "x": "113.46063144136811",
+                    "y": "23.04804562619733"
+                },
+                {
+                    "id": 0.018601090334927406,
+                    "x": "113.37166482139835",
+                    "y": "22.97162113261507"
+                },
+                {
+                    "id": 0.6466526723424051,
+                    "x": "113.33358490728884",
+                    "y": "22.92110544668449"
+                },
+                {
+                    "id": 0.28309868704214347,
+                    "x": "113.33097246247712",
+                    "y": "22.931263094756467"
+                },
+                {
+                    "id": 0.2759451471902272,
+                    "x": "113.50960506595729",
+                    "y": "22.989349538440326"
+                },
+                {
+                    "id": 0.14411499082382062,
+                    "x": "113.2919323884209",
+                    "y": "23.019790020193202"
+                },
+                {
+                    "id": 0.6409843891584872,
+                    "x": "113.41376836716772",
+                    "y": "22.939409328668393"
+                },
+                {
+                    "id": 0.5783573486775113,
+                    "x": "113.41422788095808",
+                    "y": "22.923731279301162"
+                },
+                {
+                    "id": 0.8422694092266187,
+                    "x": "113.55053558258956",
+                    "y": "22.882178444707154"
+                },
+                {
+                    "id": 0.7477133260032351,
+                    "x": "113.25588302976327",
+                    "y": "22.972145980573508"
+                },
+                {
+                    "id": 0.8613268977697646,
+                    "x": "113.5022553989896",
+                    "y": "22.947407804887153"
+                },
+                {
+                    "id": 0.5916068499908729,
+                    "x": "113.37128229599509",
+                    "y": "22.911680876240688"
+                },
+                {
+                    "id": 0.7803652942134265,
+                    "x": "113.37544827532966",
+                    "y": "22.91309635609321"
+                },
+                {
+                    "id": 0.4862624615454134,
+                    "x": "113.45847590403194",
+                    "y": "22.91817782216859"
+                },
+                {
+                    "id": 0.6196046048489932,
+                    "x": "113.53859572373925",
+                    "y": "22.936211695165746"
+                },
+                {
+                    "id": 0.07847034509730588,
+                    "x": "113.30750173680025",
+                    "y": "22.92528899151509"
+                },
+                {
+                    "id": 0.043142855872971175,
+                    "x": "113.28376747745683",
+                    "y": "22.901631202260006"
+                },
+                {
+                    "id": 0.7541254600866611,
+                    "x": "113.31780336296872",
+                    "y": "23.036210137507414"
+                },
+                {
+                    "id": 0.057314803076448095,
+                    "x": "113.3920169566937",
+                    "y": "23.031712613034472"
+                },
+                {
+                    "id": 0.4285108416085823,
+                    "x": "113.28521011795243",
+                    "y": "22.91899304996698"
+                },
+                {
+                    "id": 0.7935720273407361,
+                    "x": "113.47738639042743",
+                    "y": "23.05035842801792"
+                },
+                {
+                    "id": 0.6682024065419849,
+                    "x": "113.27979961231952",
+                    "y": "22.92563639673888"
+                },
+                {
+                    "id": 0.4554025031350999,
+                    "x": "113.31525405653993",
+                    "y": "23.044194540821795"
+                },
+                {
+                    "id": 0.5320996454353468,
+                    "x": "113.28107855286954",
+                    "y": "23.01905776525855"
+                },
+                {
+                    "id": 0.7838727478109646,
+                    "x": "113.25368272548234",
+                    "y": "22.99323774702169"
+                },
+                {
+                    "id": 0.7235010832868147,
+                    "x": "113.30659532459812",
+                    "y": "23.046962433093817"
+                },
+                {
+                    "id": 0.5660889006534597,
+                    "x": "113.29688523614897",
+                    "y": "23.025654521823213"
+                },
+                {
+                    "id": 0.9029793510960458,
+                    "x": "113.38316219452882",
+                    "y": "23.02623342871734"
+                },
+                {
+                    "id": 0.8165256561578416,
+                    "x": "113.26803349968029",
+                    "y": "23.04848213452063"
+                },
+                {
+                    "id": 0.3113980859519003,
+                    "x": "113.46554660959565",
+                    "y": "23.05841899880783"
+                },
+                {
+                    "id": 0.13232871858076245,
+                    "x": "113.27216918001118",
+                    "y": "22.972104222630083"
+                },
+                {
+                    "id": 0.052714274805299555,
+                    "x": "113.49594643895193",
+                    "y": "22.945635632120062"
+                },
+                {
+                    "id": 0.31939881916864743,
+                    "x": "113.38751213398041",
+                    "y": "23.014535381657407"
+                },
+                {
+                    "id": 0.5069308120230984,
+                    "x": "113.35215429266778",
+                    "y": "23.028936910310755"
+                },
+                {
+                    "id": 0.34456032897169875,
+                    "x": "113.34763087310881",
+                    "y": "22.987019365938373"
+                },
+                {
+                    "id": 0.19557582395283335,
+                    "x": "113.46606351534916",
+                    "y": "23.024258070783507"
+                },
+                {
+                    "id": 0.28593696797774437,
+                    "x": "113.2799111501908",
+                    "y": "22.989969811151827"
+                },
+                {
+                    "id": 0.5050652001112175,
+                    "x": "113.27935891789693",
+                    "y": "22.989918515302335"
+                },
+                {
+                    "id": 0.7608151485846244,
+                    "x": "113.29083751338918",
+                    "y": "23.015892394207327"
+                },
+                {
+                    "id": 0.20916503203043368,
+                    "x": "113.2768383488979",
+                    "y": "23.033733579082654"
+                },
+                {
+                    "id": 0.894305357590095,
+                    "x": "113.45157850154789",
+                    "y": "23.04076986814235"
+                },
+                {
+                    "id": 0.9462987348564271,
+                    "x": "113.26147743081108",
+                    "y": "23.001330409235145"
+                },
+                {
+                    "id": 0.6406893370252389,
+                    "x": "113.26374056241569",
+                    "y": "23.032031612313546"
+                },
+                {
+                    "id": 0.03399185788122283,
+                    "x": "113.33765763618067",
+                    "y": "23.04258884552243"
+                },
+                {
+                    "id": 0.20770485401582084,
+                    "x": "113.49694861573815",
+                    "y": "22.93562188380683"
+                },
+                {
+                    "id": 0.31837313441688453,
+                    "x": "113.27992617777656",
+                    "y": "22.9892461049338"
+                },
+                {
+                    "id": 0.42412746336674245,
+                    "x": "113.34169504730129",
+                    "y": "23.025888783123204"
+                },
+                {
+                    "id": 0.738369047682961,
+                    "x": "113.24708547083348",
+                    "y": "22.984542976216158"
+                },
+                {
+                    "id": 0.7948299771811502,
+                    "x": "113.47263897156472",
+                    "y": "23.016598445819326"
+                },
+                {
+                    "id": 0.6317040733035495,
+                    "x": "113.29071134057486",
+                    "y": "23.021626108408835"
+                },
+                {
+                    "id": 0.23786715705188377,
+                    "x": "113.45458194497223",
+                    "y": "23.050963481189488"
+                },
+                {
+                    "id": 0.8169122098240764,
+                    "x": "113.47246098543424",
+                    "y": "23.00776776361024"
+                },
+                {
+                    "id": 0.9383996864770896,
+                    "x": "113.49184892102724",
+                    "y": "23.008266391274862"
+                },
+                {
+                    "id": 0.9045525521706821,
+                    "x": "113.44744173955333",
+                    "y": "22.99791621996074"
+                },
+                {
+                    "id": 0.7626691854465402,
+                    "x": "113.44462915702685",
+                    "y": "22.993589198574334"
+                },
+                {
+                    "id": 0.8672748779265738,
+                    "x": "113.4025692298133",
+                    "y": "23.064039023895642"
+                },
+                {
+                    "id": 0.1076947481671835,
+                    "x": "113.40000011878865",
+                    "y": "22.906565787715834"
+                },
+                {
+                    "id": 0.27613777068619205,
+                    "x": "113.50848005364216",
+                    "y": "22.916027429986205"
+                },
+                {
+                    "id": 0.7858250830521358,
+                    "x": "113.38051424436021",
+                    "y": "22.93105593553129"
+                },
+                {
+                    "id": 0.28525993536037464,
+                    "x": "113.38045044914176",
+                    "y": "22.928654987663645"
+                },
+                {
+                    "id": 0.18459983888295972,
+                    "x": "113.36828565219547",
+                    "y": "22.910004773553275"
+                },
+                {
+                    "id": 0.7832381347059014,
+                    "x": "113.3958874248101",
+                    "y": "23.067405840580715"
+                },
+                {
+                    "id": 0.022797093766371734,
+                    "x": "113.52355796919574",
+                    "y": "22.88919590160079"
+                },
+                {
+                    "id": 0.6602541675424687,
+                    "x": "113.3832330137248",
+                    "y": "23.072130705121403"
+                },
+                {
+                    "id": 0.03996976042127187,
+                    "x": "113.48576268193625",
+                    "y": "22.96433710859772"
+                },
+                {
+                    "id": 0.6738915516641981,
+                    "x": "113.42803804428263",
+                    "y": "22.95494315405173"
+                },
+                {
+                    "id": 0.9632326737799168,
+                    "x": "113.43831390344158",
+                    "y": "22.919675515833152"
+                },
+                {
+                    "id": 0.014553231033781477,
+                    "x": "113.32673286292267",
+                    "y": "23.037893343536037"
+                },
+                {
+                    "id": 0.7620393290322973,
+                    "x": "113.33793368667145",
+                    "y": "23.033968055821685"
+                },
+                {
+                    "id": 0.39071388759739945,
+                    "x": "113.3530142204108",
+                    "y": "22.935874560113657"
+                },
+                {
+                    "id": 0.7854341780816043,
+                    "x": "113.35392819739849",
+                    "y": "22.958604490778043"
+                },
+                {
+                    "id": 0.014216981224382419,
+                    "x": "113.39773008451256",
+                    "y": "22.91452628011707"
+                },
+                {
+                    "id": 0.06690345498190742,
+                    "x": "113.28779297970986",
+                    "y": "22.979586628146166"
+                },
+                {
+                    "id": 0.8896852663043282,
+                    "x": "113.55082777352499",
+                    "y": "22.904923740575825"
+                },
+                {
+                    "id": 0.9421041029549506,
+                    "x": "113.48726107488082",
+                    "y": "22.976230468659825"
+                },
+                {
+                    "id": 0.975585331820479,
+                    "x": "113.41854373730409",
+                    "y": "22.92156399081352"
+                },
+                {
+                    "id": 0.4762083820433478,
+                    "x": "113.41720172066509",
+                    "y": "22.928229928379352"
+                },
+                {
+                    "id": 0.5112347615490123,
+                    "x": "113.31576016202716",
+                    "y": "22.982961027655797"
+                },
+                {
+                    "id": 0.567693163809349,
+                    "x": "113.49648107492197",
+                    "y": "23.009341860701618"
+                },
+                {
+                    "id": 0.31837514145649704,
+                    "x": "113.29169415551657",
+                    "y": "23.014447699813264"
+                },
+                {
+                    "id": 0.5156499467932223,
+                    "x": "113.35649295881478",
+                    "y": "23.049762343096344"
+                },
+                {
+                    "id": 0.5980766176277004,
+                    "x": "113.26227837396915",
+                    "y": "22.977939984514933"
+                },
+                {
+                    "id": 0.9407439600186276,
+                    "x": "113.51285682738235",
+                    "y": "22.903321386862693"
+                },
+                {
+                    "id": 0.06941934584701182,
+                    "x": "113.29035724122521",
+                    "y": "22.897856275853165"
+                },
+                {
+                    "id": 0.667657053087267,
+                    "x": "113.51144412132264",
+                    "y": "23.007894868745364"
+                },
+                {
+                    "id": 0.6734566796968717,
+                    "x": "113.50926599432981",
+                    "y": "22.912370246692774"
+                },
+                {
+                    "id": 0.13596560259359758,
+                    "x": "113.30211597576826",
+                    "y": "22.929037051623652"
+                },
+                {
+                    "id": 0.95789509805371,
+                    "x": "113.46978425772272",
+                    "y": "22.994291139088578"
+                },
+                {
+                    "id": 0.7056782708114591,
+                    "x": "113.35322933078115",
+                    "y": "22.914391220275935"
+                },
+                {
+                    "id": 0.2147316296601376,
+                    "x": "113.40089576250017",
+                    "y": "22.959686588209195"
+                },
+                {
+                    "id": 0.9127491023216396,
+                    "x": "113.26247023574767",
+                    "y": "23.03754011902575"
+                },
+                {
+                    "id": 0.2994634602082906,
+                    "x": "113.38783302674233",
+                    "y": "23.01459922976853"
+                },
+                {
+                    "id": 0.910780465304853,
+                    "x": "113.44800715046786",
+                    "y": "22.998042382852706"
+                },
+                {
+                    "id": 0.6009735150009818,
+                    "x": "113.45796354681198",
+                    "y": "22.990636708397794"
+                },
+                {
+                    "id": 0.8847960915596331,
+                    "x": "113.3075664298619",
+                    "y": "23.03175921353393"
+                },
+                {
+                    "id": 0.6668147826221358,
+                    "x": "113.27906081988287",
+                    "y": "22.967628478132216"
+                },
+                {
+                    "id": 0.48262884641022774,
+                    "x": "113.37877611045717",
+                    "y": "23.03817716479222"
+                },
+                {
+                    "id": 0.4787585342824916,
+                    "x": "113.34913974214906",
+                    "y": "22.920834058576162"
+                },
+                {
+                    "id": 0.9494584733871412,
+                    "x": "113.35585184512996",
+                    "y": "22.933896084206197"
+                },
+                {
+                    "id": 0.16435225474361226,
+                    "x": "113.4106636710937",
+                    "y": "22.93873145798501"
+                },
+                {
+                    "id": 0.3531243221286724,
+                    "x": "113.40726991703268",
+                    "y": "22.928587870172567"
+                },
+                {
+                    "id": 0.2599195479388643,
+                    "x": "113.38940351673135",
+                    "y": "22.92784585564085"
+                },
+                {
+                    "id": 0.8509705966379535,
+                    "x": "113.38577051534895",
+                    "y": "22.930482168421428"
+                },
+                {
+                    "id": 0.6953493549099516,
+                    "x": "113.34346621908394",
+                    "y": "22.930663544112164"
+                },
+                {
+                    "id": 0.6842395984298946,
+                    "x": "113.49852875337369",
+                    "y": "22.896373923118045"
+                },
+                {
+                    "id": 0.8618293709749798,
+                    "x": "113.45870127277776",
+                    "y": "22.922373634291176"
+                },
+                {
+                    "id": 0.720607852540428,
+                    "x": "113.35548386905032",
+                    "y": "23.030002344008047"
+                },
+                {
+                    "id": 0.8648545414874969,
+                    "x": "113.54109806828419",
+                    "y": "22.927685824247753"
+                },
+                {
+                    "id": 0.811235388136929,
+                    "x": "113.35558287681933",
+                    "y": "22.954269841634048"
+                },
+                {
+                    "id": 0.34084251781219144,
+                    "x": "113.3964288109507",
+                    "y": "22.930750480503963"
+                },
+                {
+                    "id": 0.7570786891225156,
+                    "x": "113.38648432363368",
+                    "y": "22.929191388534967"
+                },
+                {
+                    "id": 0.037640526505302585,
+                    "x": "113.27911926347446",
+                    "y": "22.98966791668554"
+                },
+                {
+                    "id": 0.2608892371151843,
+                    "x": "113.30699971003159",
+                    "y": "22.92559377787898"
+                },
+                {
+                    "id": 0.07447282619966145,
+                    "x": "113.2759363413094",
+                    "y": "22.9615727324646"
+                },
+                {
+                    "id": 0.9063399703532597,
+                    "x": "113.29356711997552",
+                    "y": "22.93699601289593"
+                },
+                {
+                    "id": 0.435878345976614,
+                    "x": "113.4672157561192",
+                    "y": "23.05918615345386"
+                },
+                {
+                    "id": 0.28780398435920107,
+                    "x": "113.50787259765151",
+                    "y": "22.96690312803552"
+                },
+                {
+                    "id": 0.39575460711787414,
+                    "x": "113.28487501459699",
+                    "y": "23.047474464648076"
+                },
+                {
+                    "id": 0.4157712788187662,
+                    "x": "113.46049607464197",
+                    "y": "23.003127662299484"
+                },
+                {
+                    "id": 0.7141348989359597,
+                    "x": "113.44773842418012",
+                    "y": "22.998782483021387"
+                },
+                {
+                    "id": 0.6371892092880489,
+                    "x": "113.46730509675784",
+                    "y": "23.043460136661906"
+                },
+                {
+                    "id": 0.261368672898896,
+                    "x": "113.42579084037268",
+                    "y": "22.91957506417812"
+                },
+                {
+                    "id": 0.33293076828222334,
+                    "x": "113.30531884908707",
+                    "y": "22.898306108202988"
+                },
+                {
+                    "id": 0.3112357074839063,
+                    "x": "113.356551",
+                    "y": "22.935003"
+                },
+                {
+                    "id": 0.5672619993271124,
+                    "x": "113.38652",
+                    "y": "22.93118"
+                }
+            ];
+            // console.log(111)
+            data.map(item => {
+                let xy = esri.geometry.lngLatToXY(item.x, item.y)//地理坐标系转投影
+                let geometry = new  esri.geometry.Point(xy[0], xy[1], myMap.spatialReference)
+                var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
+                myGraphicsLayer.add(new esri.Graphic(geometry,symbol));
+            })
         }
     </script>
 </body>
