@@ -27,7 +27,7 @@
         <button onclick="drawArrow()">画箭头</button>
         <button onclick="drawRectangle()">画矩形</button>
         <button onclick="clearDraw()">清屏</button>
-        <button onclick="listPoint()">渲染坐标点</button>
+        <button onclick="listPoint()">渲染2000个坐标点</button>
     </div>
     <div id="map">
     </div>
@@ -50,7 +50,7 @@
                 zoom : 6
             });
             myGeometryService = new esri.tasks.GeometryService(
-                "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer");//创建几何服务对象，url地址为几何服务地址
+                "https://sampleserver6.arcgisonline.com/arcgis/rest/services/Utilities/Geometry/GeometryServer");//创建几何服务对象，url地址为几何服务地址
             myMap.on("load",function(){
                 myGeometryServerToolbar = new esri.toolbars.Draw(myMap);//创建绘图工具对象
 
@@ -60,7 +60,7 @@
                 initTools();//绑定画图事件
             });
 
-            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("http://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
+            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
             myMap.addLayer(myTiledMapServiceLayer);
         });
         function initTools(){
@@ -1333,12 +1333,20 @@
                 }
             ];
             // console.log(111)
-            data.map(item => {
-                let xy = esri.geometry.lngLatToXY(item.x, item.y)//地理坐标系转投影
+            // data.map(item => {
+            //     let xy = esri.geometry.lngLatToXY(item.x, item.y)//地理坐标系转投影
+            //     let geometry = new  esri.geometry.Point(xy[0], xy[1], myMap.spatialReference)
+            //     var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
+            //     myGraphicsLayer.add(new esri.Graphic(geometry,symbol));
+            // })
+
+
+            for (let i = 0; i < 2000; i++) {
+                let xy = esri.geometry.lngLatToXY(113+Math.random(), 23+Math.random())//地理坐标系转投影
                 let geometry = new  esri.geometry.Point(xy[0], xy[1], myMap.spatialReference)
                 var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
                 myGraphicsLayer.add(new esri.Graphic(geometry,symbol));
-            })
+            }
         }
     </script>
 </body>
