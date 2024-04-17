@@ -8,6 +8,16 @@ const store = new Vuex.Store({
             {
                 type: '有趣',
                 createTime: '2022年11月11日',
+                title: '在线播放室',
+                content: '简简单单的一起看电影',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'page/funny/kVideo.html'
+            },
+            {
+                type: '有趣',
+                createTime: '2022年11月11日',
                 title: '圣诞树',
                 content: '简简单单的圣诞树',
                 view: 100,
