@@ -11,15 +11,21 @@
 <style>
     .content {
         dispaly: flex;
-        flex-direction：column;
-        justify-content：center;
-        align-itmes：center;
-        align-content：center;
+        flex-direction: column;
+        justify-content: center;
+        align-itmes: center;
+        align-content: center;
     }
     .c-input {
         width:300px;
-        margin:15px 0;
+        margin:15px 10px;
     }
+    .h-con {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+    }
+
 </style>
 <body>
 <div class="content">
@@ -32,14 +38,13 @@
         https://cdn.plyr.io/static/demo/View_From_A_Blue_Moon_Trailer-720p.mp4
         https://v1.tlkqc.com/wjv1/202308/19/Gx6repHwzj2/video/index.m3u8
         -->
-    <div id="k-text">
-        <input id="v-text" type="text" value="" placeholder="url" id="change" class="c-input">
-        <input type="button" value="立即切换播放源" onclick="vchange()">
-    </div>
-    <div id="k-file" style="display:none;">
-        <input id="v-file" type="file" class="c-input">
-        <input type="button" value="立即切换播放源" onclick="vchange()">
-    </div>
+        <div class="h-con">
+            <input id="v-text" type="text" placeholder="url" id="change" class="c-input">
+            <input id="v-file" type="file" class="c-input" style="display: none;">
+            <input type="button" value="立即切换播放源" onclick="vchange()">
+
+            <input type="button" value="分享播放室" onclick="share()" style="margin-left: 40px;">
+        </div>
 
     <video id="myVideo" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" data-setup='{}'>
     </video>
@@ -47,18 +52,22 @@
 </div>
 </body>
 <script>
+    const url = window.location.search;
+    const params = new URLSearchParams(url);
     var navIndex = 0;
     const ids = ['text','file']
+    var uurl = params.get('uurl');;
+    var utype= getType(uurl);
     function switchi(index){
         navIndex = index;
         for(let i = 0; i < ids.length; i++) {
-            let kdocm = document.getElementById('k-'+ids[i]);
+            let vdocm = document.getElementById('v-'+ids[i]);
             let bdocm = document.getElementById('b-'+ids[i]);
             if(index == i) {
-                kdocm.style.setProperty('display','block');
+                vdocm.style.setProperty('display','block');
                 bdocm.style.setProperty('color','red');
             }else {
-                kdocm.style.setProperty('display','none');
+                vdocm.style.setProperty('display','none');
                 bdocm.style.setProperty('color','black');
             }
 
@@ -73,10 +82,7 @@
         controls: true, // 显示播放的控件
         fluid: true, // 自适应宽高
         playbackRates: [0.5, 1, 1.5, 2, 3, 4],
-        sources: [{
-            src: 'https://v1.tlkqc.com/wjv1/202308/19/Gx6repHwzj2/video/index.m3u8',
-            type: 'application/x-mpegURL'
-        }],
+        sources: [],
         controlBar: {
             // 设置控制条组件
             currentTimeDisplay: true,
@@ -183,9 +189,19 @@
             console.log("音量改变")
         });
     });
+
+    if (!uurl) {
+        uurl = 'https://v1.tlkqc.com/wjv1/202308/19/Gx6repHwzj2/video/index.m3u8'
+        utype = 'application/x-mpegURL'
+    }
+    myPlayer.src({
+        src: uurl,
+        type: utype
+    })
+
     function vchange() {
         let url = document.getElementById('v-'+ids[navIndex]).value;
-        let rtype = getType(url.slice(url.lastIndexOf('.') + 1))
+        let rtype = getType(url)
         if(url.length==0) {
             alert("无内容");
             return;
@@ -195,13 +211,34 @@
             let file = document.getElementById('v-'+ids[navIndex]).files[0];
             let csrc = URL.createObjectURL(file);
             url= csrc;
+        }else {
+            uurl = url;
         }
         myPlayer.src({
                 src: url,
                 type: rtype
             })
     }
-    function getType(pth) {
+    function share () {
+        let hre = window.location.protocol + "//" + window.location.host + window.location.pathname+"?uurl="+uurl;
+        copyTextToClipboard(hre);
+        console.log(hre)
+    }
+    async function copyTextToClipboard(text) {
+        try {
+            await navigator.clipboard.writeText(text);
+            console.log('Text copied to clipboard');
+            alert("已复制到剪切板")
+        } catch (err) {
+            console.error('Failed to copy: ', err);
+            prompt("内容",text)
+        }
+    }
+    function getType(url) {
+        if (!url) {
+            return;
+        }
+        let pth = url.slice(url.lastIndexOf('.') + 1)
         if (pth === 'm3u8') {
           return "application/x-mpegURL";
         } else if (pth === 'mp4') {
@@ -213,6 +250,7 @@
         }else if (pth === 'flv') {
           return "video/x-flv";
         }
+        return '';
     }
 
 </script>
