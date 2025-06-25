@@ -178,12 +178,34 @@
         if (!navigator.clipboard) {
             console.error('Clipboard API not supported');
             return;
+            fallbackCopy(text);
         }
         navigator.clipboard.writeText(text).then(function () {
             console.log('Text copied to clipboard');
         }, function (err) {
             console.error('Could not copy text: ', err);
-        });
+            // 降级方案
+            fallbackCopy(text);
+        }).catch(() => {
+            // 降级方案
+            fallbackCopy(text);
+        });;
+    }
+    function fallbackCopy(text) {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        document.body.appendChild(textarea);
+        textarea.select();
+
+        try {
+            document.execCommand('copy');
+            console.log('复制成功');
+        } catch (err) {
+            console.log('请手动选择文本进行复制');
+        }
+
+        document.body.removeChild(textarea);
     }
 </script>
 
