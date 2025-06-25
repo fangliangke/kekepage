@@ -60,7 +60,8 @@
                 initTools();//绑定画图事件
             });
 
-            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");
+<!--            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("https://map.geoq.cn/ArcGIS/rest/services/ChinaOnlineCommunity/MapServer");-->
+            var myTiledMapServiceLayer = new esri.layers.ArcGISTiledMapServiceLayer("https://sampleserver6.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer");
             myMap.addLayer(myTiledMapServiceLayer);
         });
         function initTools(){
@@ -69,7 +70,7 @@
                 dojo.connect(myGeometryService, "onAreasAndLengthsComplete",myOutputAreaAndLength);//绑定面积周长完成后事件
                 dojo.connect(myGeometryServerToolbar, "onDrawEnd", function(geometry) {//绑定绘图结束事件
                     myGeometryData = geometry;
-                    console.log(myGeometryData);
+                    console.log("原型数据：",myGeometryData);
                     switch (geometry.type) {
                         case "point":
                             var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
@@ -1343,6 +1344,8 @@
 
             for (let i = 0; i < 2000; i++) {
                 let xy = esri.geometry.lngLatToXY(113+Math.random(), 23+Math.random())//地理坐标系转投影
+
+                //xyToLngLat
                 let geometry = new  esri.geometry.Point(xy[0], xy[1], myMap.spatialReference)
                 var symbol = new esri.symbol.SimpleMarkerSymbol(esri.symbol.SimpleMarkerSymbol.STYLE_CIRCLE, 10,new esri.symbol.SimpleLineSymbol(esri.symbol.SimpleLineSymbol.STYLE_SOLID, new dojo.Color([255,0,0]), 1), new dojo.Color([0,255,0,0.25]));
                 myGraphicsLayer.add(new esri.Graphic(geometry,symbol));
