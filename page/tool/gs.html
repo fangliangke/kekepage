@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>工时系统生成</title>
+    <style>
+        body {
+            padding: 15px;
+        }
+
+        .tt-log {
+            font-size: 20px;
+            height: 100px;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .tt-log:focus {
+            outline-color: deepskyblue;
+        }
+
+        .tt-sql {
+            font-size: 20px;
+            height: 320px;
+            width: 100%;
+            border-radius: 5px;
+        }
+
+        .tt-sql:focus {
+            outline-color: mediumblue;
+        }
+
+        .button-group {
+            width: 100%;
+            height: 50px;
+            text-align: center;
+        }
+
+        .button-item {
+            color: mediumblue;
+            width: 100px;
+            height: 60px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <span>小时</span>
+    <input checked type="radio" name="level" value="8" onchange="chtype()">8小时
+    <input type="radio" name="level" value="10" onchange="chtype()">10小时
+    <input type="radio" name="level" value="12" onchange="chtype()">12小时
+    <br />
+    <div id="typeslect" style="display: none;">
+        <span>类型</span>
+        <input type="radio" name="rtype" value="hc" checked>河涌<input type="radio" name="rtype" value="xw">小微水体
+    </div>
+    <div class="button-group">
+        <button class="button-item" type="button" onclick="copy()">
+            复制
+        </button>
+        <button class="button-item" type="button" onclick="run()">
+            执行
+        </button>
+    </div>
+
+    <h2 style="color: #32cd32">日志：</h2>
+    <textarea id="sql" class="tt-sql" readonly></textarea>
+
+</body>
+<script type="text/javascript">
+    var level = 8;
+    const featurePoints = [
+        // 首页功能点
+        "首页-数据统计分析展示",
+        "首页-关键信息集中展示",
+        "首页-主要功能快捷入口",
+        // 图谱管理功能点
+        "图谱管理-知识图谱展示",
+        "图谱管理-实体关系图搜索",
+        "图谱管理-图谱预览与查看",
+        "图谱管理-图谱统计",
+        "图谱管理-实体类别管理",
+        "图谱管理-图谱生产管理",
+        // 知识管理功能点
+        "知识管理-知识库管理",
+        "知识管理-智能问答",
+        // 智能搜索功能点
+        "智能搜索-关键词搜索",
+        "智能搜索-智能排序",
+        "智能搜索-个性化推荐",
+        // 预案优选功能点
+        "预案优选-预案搜索管理",
+        "预案优选-预案列表对比",
+        "预案优选-预案优选结果查看",
+        // 系统管理功能点
+        // 个人设置
+        "个人基础信息查看与修改",
+        "个人账号密码修改",
+        // 系统设置
+        "组织机构用户管理",
+        "系统角色权限配置",
+        "数据字典管理",
+        "系统日志记录与查看",
+        // 服务接口管理
+        "服务接口列表及访问入口提供",
+        "服务使用申请支持",
+        "服务目录组织与服务注册功能提供",
+        "服务接口描述详情查看支持"
+    ];
+    const opt = [
+        "数据配置",
+        "代码更新",
+        "逻辑调整",
+        "优化",
+        "规则修改",
+        "修订",
+        "变更"
+    ]
+    function splitNumberIntoFiveParts(n) {
+        // 初始化一个数组，用于存储拆分后的5个部分
+        const parts = [];
+        let remaining = n;
+
+        // 生成4个随机数，确保它们的和不超过N，并且每个部分至少为0.5，且是0.5的倍数
+        for (let i = 0; i < 4; i++) {
+            // 计算最小和最大可能的随机数
+            const min = 0.5;
+            const max = remaining - (4 - i) * min; // 确保剩下的部分至少为0.5
+
+            // 生成一个随机数，范围在min到max之间，并且是0.5的倍数
+            const random = Math.random() * (max - min) + min;
+            const part = Math.round(random * 2) / 2; // 确保是0.5的倍数
+            parts.push(part);
+            remaining -= part;
+        }
+
+        // 最后一个部分就是剩余的数值，确保是0.5的倍数
+        const lastPart = Math.round(remaining * 2) / 2;
+        parts.push(lastPart);
+
+        return parts;
+    }
+    function chtype() {
+        for (var i = 0; i < document.getElementsByName("level").length; i++) {
+            if (document.getElementsByName("level")[i].checked) {
+                level = document.getElementsByName("level")[i].value;
+            }
+        }
+
+        console.log("level=" + level)
+    }
+    //执行
+    function run() {
+        console.log("运行...")
+        let h = splitNumberIntoFiveParts(level);
+        let f = [...featurePoints];
+        let o = [...opt]
+        let str = "";
+        for (let i = 0; i < h.length; i++) {
+            let ii = Math.floor(Math.random() * f.length)
+            let jj = Math.floor(Math.random() * o.length)
+            str += (i + 1) + "、" + f[ii] + "功能" + o[jj] + "，已完成100%，" + h[i] + "h。\n";
+            f.splice(ii, 1);
+            o.splice(jj, 1);
+        }
+        console.log(str)
+        document.getElementById("sql").innerHTML = "";
+        document.getElementById("sql").innerHTML = str;
+    }
+    function copy() {
+        copyTextToClipboard(str);
+    }
+
+    // 确保调用此函数的事件是由用户触发的，例如点击事件
+    function copyTextToClipboard(text) {
+        if (!navigator.clipboard) {
+            console.error('Clipboard API not supported');
+            return;
+        }
+        navigator.clipboard.writeText(text).then(function () {
+            console.log('Text copied to clipboard');
+        }, function (err) {
+            console.error('Could not copy text: ', err);
+        });
+    }
+</script>
+
+</html>

@@ -47,6 +47,16 @@ const store = new Vuex.Store({
             },
             {
                 type: '工具',
+                createTime: '2025年6月25日',
+                title: '工时日志自动生成',
+                content: '工时日志自动生成',
+                view: 100,
+                like: 99,
+                cover: 'cat.jpeg',
+                url: 'page/tool/gs.html'
+            },
+            {
+                type: '工具',
                 createTime: '2022年12月13日',
                 title: 'mybatis日志解析成可执行SQL',
                 content: '一个快速mybatis日志解析成可执行SQL工具',
@@ -123,10 +133,10 @@ const store = new Vuex.Store({
     },
     actions: {
         setTypeIndex: ({
-                           commit
-                       }, value) => commit('setTypeIndex', value),
+            commit
+        }, value) => commit('setTypeIndex', value),
         setSearchText: ({
-                            commit
-                        }, value) => commit('setSearchText', value),
+            commit
+        }, value) => commit('setSearchText', value),
     }
 })
