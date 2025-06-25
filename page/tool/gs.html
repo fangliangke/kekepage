@@ -170,8 +170,26 @@
         document.getElementById("sql").innerHTML = str;
     }
     function copy() {
-        copyTextToClipboard(str);
+
+        var element = document.getElementById('sql');
+        selectText(element);
+        copyTextToClipboard(document.getElementById("sql").value);
     }
+
+    function selectText(node) {
+        if (window.getSelection && document.createRange) {
+            var selection = window.getSelection();
+            var range = document.createRange();
+            range.selectNodeContents(node);
+            selection.removeAllRanges();
+            selection.addRange(range);
+        } else if (document.body.createTextRange) { // 支持 IE < 9
+            var textRange = document.body.createTextRange();
+            textRange.moveToElementText(node);
+            textRange.select();
+        }
+    }
+
 
     // 确保调用此函数的事件是由用户触发的，例如点击事件
     function copyTextToClipboard(text) {
