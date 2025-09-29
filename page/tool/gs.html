@@ -52,9 +52,14 @@
     <input type="radio" name="level" value="10" onchange="chtype()">10小时
     <input type="radio" name="level" value="12" onchange="chtype()">12小时
     <br />
-    <div id="typeslect" style="display: none;">
+    <div id="typeslect" style="display: block;margin-top: 50px;">
         <span>类型</span>
-        <input type="radio" name="rtype" value="hc" checked>河涌<input type="radio" name="rtype" value="xw">小微水体
+        <br />
+        <input type="radio" name="xmtype" value="typt" checked onchange="chxmtype()">广州三防、广州水资源-通用平台V6.0
+        <br />
+        <input type="radio" name="xmtype" value="slhy" onchange="chxmtype()">韶山灌区-水行业通用服务系统V1.0
+        <br />
+        <input type="radio" name="xmtype" value="zhsl" onchange="chxmtype()">韶山灌区、引江济淮-智慧水利平台V4.0
     </div>
     <div class="button-group">
         <button class="button-item" type="button" onclick="copy()">
@@ -71,44 +76,123 @@
 </body>
 <script type="text/javascript">
     var level = 8;
+    var xmtype = "typt";
+    const tyfw = [
+      "组件管理-多版本上传下载",
+      "表单引擎-配置化表单及列表生成",
+      "表单引擎-工作流集成",
+      "底座框架-用户",
+      "底座框架-部门",
+      "底座框架-角色",
+      "底座框架-菜单",
+      "底座框架-字典",
+      "底座框架-权限与安全验证",
+      "系统管理-权限基础信息",
+      "工作流引擎-可视化工作流",
+      "工作流引擎-工作流提供接口",
+      "业务流引擎-逻辑规则自动匹配",
+      "业务流引擎-业务流程前后逻辑关系服务",
+      "GIS设计器-空间数据表示",
+      "GIS设计器-可视化",
+      "大屏可视化设计器-个性化大屏",
+      "大屏可视化设计器-数据绑定与动态刷新",
+      "大屏可视化设计器-可视化建模工具",
+      "统一门户模块-统一登录",
+      "统一门户模块-统一用户管理"
+    ];
+
+    const shy = [
+      "灌区面雨量计算-算术平均法公式",
+      "灌区面雨量计算-泰森多边形法（加权平均法）公式",
+      "灌区面雨量计算-等雨量线法公式",
+      "降雨等值线与等值面计算-反距离权重插值法（IDW）公式",
+      "降雨等值线与等值面计算-克里金插值法（半变异函数核心公式）",
+      "灌区水库纳雨能力计算-水库可蓄降雨量公式",
+      "灌区水库纳雨能力计算-水库纳雨来水量公式",
+      "水闸流量计算-宽顶堰自由出流公式（常用）",
+      "水闸流量计算-实用堰出流公式（适配曲线型闸堰）",
+      "水闸流量计算-孔口出流公式（适配闸门全开 / 部分开启）",
+    ];
+    const zhsl = [
+      "一张图-景区分布管理",
+      "一张图-景区 GIS 地图与筛选",
+      "一张图-景区状态与复核数据",
+      "一张图-实时监测与告警",
+      "控制运行-放水预警方案",
+      "控制运行-调度规程",
+      "控制运行-调度记录",
+      "控制运行-运行通知",
+      "控制运行-操作指令",
+      "控制运行-操作票",
+      "全要素-库区要素管理",
+      "全要素-工程要素管理",
+      "全要素-下游要素管理",
+      "体检模块-巡视检查管理",
+      "体检模块-监测检测管理",
+      "体检模块-隐患排查管理",
+      "体检模块-大坝安全鉴定",
+      "巡视检查模块-巡检路线与计划",
+      "巡视检查模块-巡检类型管理",
+      "巡视检查模块-巡检统计",
+      "巡视检查模块-巡检结果详情管理",
+      "维修养护模块-工单发起",
+      "维修养护模块-工单跟踪",
+      "维修养护模块-工单审核",
+      "维修养护模块-工单处理与统计",
+      "泵闸站监控模块-运行参数实时监测",
+      "泵闸站监控模块-运行状态监控与可视化",
+      "泵闸站监控模块-控制与调节",
+      "全天候模块-信息化资源整合",
+      "全天候模块-信息实时分析与应用",
+      "全天候模块-水库安全运行性态与风险掌握",
+      "通讯录模块-系统用户信息展示",
+      "通讯录模块-用户号码管理",
+      "我的模块-个人信息展示",
+      "档案综合管理-档案收集",
+      "档案综合管理-档案管理",
+      "档案综合管理-档案存储",
+      "档案综合管理-档案利用",
+      "档案综合管理-档案的在线查看",
+      "泵站全景-泵站信息与机组运行展示",
+      "泵站全景-辅助系统与监控展示",
+      "泵站全景-泵站数据监测",
+      "泵站全景-泵站控制与调节",
+    ]
+
+    //通用服务功能点
+
+    //知识引擎功能点
     const featurePoints = [
-        // 首页功能点
         "首页-数据统计分析展示",
         "首页-关键信息集中展示",
         "首页-主要功能快捷入口",
-        // 图谱管理功能点
         "图谱管理-知识图谱展示",
         "图谱管理-实体关系图搜索",
         "图谱管理-图谱预览与查看",
         "图谱管理-图谱统计",
         "图谱管理-实体类别管理",
         "图谱管理-图谱生产管理",
-        // 知识管理功能点
         "知识管理-知识库管理",
         "知识管理-智能问答",
-        // 智能搜索功能点
         "智能搜索-关键词搜索",
         "智能搜索-智能排序",
         "智能搜索-个性化推荐",
-        // 预案优选功能点
         "预案优选-预案搜索管理",
         "预案优选-预案列表对比",
         "预案优选-预案优选结果查看",
-        // 系统管理功能点
-        // 个人设置
         "个人基础信息查看与修改",
         "个人账号密码修改",
-        // 系统设置
         "组织机构用户管理",
         "系统角色权限配置",
         "数据字典管理",
         "系统日志记录与查看",
-        // 服务接口管理
         "服务接口列表及访问入口",
         "服务使用申请",
         "服务目录组织与服务注册",
         "服务接口描述详情查看"
     ];
+
+    //操作
     const opt = [
         "数据配置",
         "代码更新",
@@ -118,37 +202,87 @@
         "修订",
         "变更",
         "需求开发",
-   "模块重构",
-   "接口开发",
-   "数据处理",
-   "前端集成",
-   "BUG修复",
-   "性能优化",
-   "代码优化",
-   "安全加固",
-   "单元测试",
-   "集成测试",
-   "部署发布",
-   "版本管理",
-   "技术调研",
-   "方案设计",
-   "文档输出",
-   "团队协作",
-   "并发编程",
-   "中间件开发",
-   "云原生开发",
-   "代码审查",
-   "应急处理",
-   "BUG处理",
+       "模块重构",
+       "接口开发",
+       "数据处理",
+       "前端集成",
+       "BUG修复",
+       "性能优化",
+       "代码优化",
+       "安全加固",
+       "单元测试",
+       "集成测试",
+       "部署发布",
+       "版本管理",
+       "技术调研",
+       "方案设计",
+       "文档输出",
+       "并发编程",
+       "代码审查",
+       "应急处理",
+       "BUG处理",
     ]
+
+//执行
+    function run() {
+        console.log("运行...")
+        let f = []
+        let h = splitNumberIntoFiveParts(level);
+        if (xmtype == "typt") {
+        // 通用服务
+            f = [...tyfw];
+        }else if (xmtype == "slhy") {
+        // 水利行业
+            f = [...shy];
+        }else if (xmtype == "zhsl") {
+        // 智慧水厂
+            f = [...zhsl];
+        }
+        let o = [...opt]
+        let str = "";
+        for (let i = 0; i < h.length; i++) {
+            let ii = Math.floor(Math.random() * f.length)
+            let jj = Math.floor(Math.random() * o.length)
+            str += (i + 1) + "、" + f[ii] + "功能" + o[jj] + "，已完成100%，" + h[i] + "h。\n";
+            f.splice(ii, 1);
+            o.splice(jj, 1);
+        }
+        console.log(str)
+        document.getElementById("sql").innerHTML = "";
+        document.getElementById("sql").innerHTML = str;
+    }
+
     run();
+
+    //改变时间
+    function chtype() {
+        for (var i = 0; i < document.getElementsByName("level").length; i++) {
+            if (document.getElementsByName("level")[i].checked) {
+                level = document.getElementsByName("level")[i].value;
+            }
+        }
+
+        console.log("level=" + level)
+    }
+    //改变项目名称
+    function chxmtype() {
+        for (var i = 0; i < document.getElementsByName("xmtype").length; i++) {
+            if (document.getElementsByName("xmtype")[i].checked) {
+                xmtype = document.getElementsByName("xmtype")[i].value;
+            }
+        }
+
+        console.log("xmtype=" + xmtype)
+    }
+
+
     function splitNumberIntoFiveParts(n) {
-        // 初始化一个数组，用于存储拆分后的5个部分
+        // 初始化一个数组，用于存储拆分后的4个部分
         const parts = [];
         let remaining = n;
 
         // 生成4个随机数，确保它们的和不超过N，并且每个部分至少为0.5，且是0.5的倍数
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 3; i++) {
             // 计算最小和最大可能的随机数
             const min = 0.5;
             const max = remaining - (4 - i) * min; // 确保剩下的部分至少为0.5
@@ -165,33 +299,6 @@
         parts.push(lastPart);
 
         return parts;
-    }
-    function chtype() {
-        for (var i = 0; i < document.getElementsByName("level").length; i++) {
-            if (document.getElementsByName("level")[i].checked) {
-                level = document.getElementsByName("level")[i].value;
-            }
-        }
-
-        console.log("level=" + level)
-    }
-    //执行
-    function run() {
-        console.log("运行...")
-        let h = splitNumberIntoFiveParts(level);
-        let f = [...featurePoints];
-        let o = [...opt]
-        let str = "";
-        for (let i = 0; i < h.length; i++) {
-            let ii = Math.floor(Math.random() * f.length)
-            let jj = Math.floor(Math.random() * o.length)
-            str += (i + 1) + "、" + f[ii] + "功能" + o[jj] + "，已完成100%，" + h[i] + "h。\n";
-            f.splice(ii, 1);
-            o.splice(jj, 1);
-        }
-        console.log(str)
-        document.getElementById("sql").innerHTML = "";
-        document.getElementById("sql").innerHTML = str;
     }
     function copy() {
 
